@@ -26,7 +26,7 @@ body[data-theme="editorial"] {
   --font-script: "Cormorant Garamond", serif;
 }
 
-body[data-theme="editorial"] .page__footer::before { content: "Lâm Thanh Tiệp"; letter-spacing: .3em; }
+body[data-theme="editorial"] .page__footer::before { content: attr(data-footer); letter-spacing: .3em; }
 body[data-theme="editorial"] .page__footer::after { content: attr(data-page); }
 
 body[data-theme="editorial"] .cover__left { background: #efe5d0; }

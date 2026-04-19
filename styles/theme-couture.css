@@ -109,7 +109,7 @@ body[data-theme="couture"] .training__num {
 
 body[data-theme="couture"] .page__footer { color: #000; }
 body[data-theme="couture"] .page__footer::before {
-  content: "COUTURE · LÂM THANH TIỆP";
+  content: "COUTURE · " attr(data-footer);
   letter-spacing: .48em;
   font-weight: 700;
 }

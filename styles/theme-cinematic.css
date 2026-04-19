@@ -49,5 +49,5 @@ body[data-theme="cinematic"] .media-card {
 body[data-theme="cinematic"] .play-card__cap { background: #1b140a; }
 body[data-theme="cinematic"] .info__fields { border-top-color: #e4b25b; }
 
-body[data-theme="cinematic"] .page__footer::before { content: "Lâm Thanh Tiệp"; letter-spacing: .3em; color: #a08a63; }
+body[data-theme="cinematic"] .page__footer::before { content: attr(data-footer); letter-spacing: .3em; color: #a08a63; }
 body[data-theme="cinematic"] .page__footer::after { content: attr(data-page); color: #a08a63; }

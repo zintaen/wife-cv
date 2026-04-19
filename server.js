@@ -7,6 +7,9 @@
  *   GET  /api/images           -> list files in images/
  *   POST /api/images           -> upload one image. JSON body: { filename, dataUrl }
  *   DELETE /api/images/:name   -> delete an image
+ *   GET  /api/fonts            -> list custom fonts in fonts/ (with declared family)
+ *   POST /api/fonts            -> upload one font. JSON body: { filename, family, dataUrl }
+ *   DELETE /api/fonts/:name    -> delete a custom font
  *
  * Run with:
  *   node server.js
@@ -24,7 +27,12 @@ const url = require('url');
 const ROOT = __dirname;                              // portfolio/
 const CONTENT = path.join(ROOT, 'content.json');
 const IMAGES = path.join(ROOT, 'images');
+const FONTS = path.join(ROOT, 'fonts');
+const FONTS_INDEX = path.join(FONTS, 'index.json');
 const PORT = Number(process.env.PORT) || 8765;
+
+// Ensure fonts/ exists
+try { fs.mkdirSync(FONTS, { recursive: true }); } catch (_) { /* ok */ }
 
 // --------------------------------------------------- MIME map
 const MIME = {
@@ -42,6 +50,7 @@ const MIME = {
   '.woff': 'font/woff',
   '.woff2':'font/woff2',
   '.ttf':  'font/ttf',
+  '.otf':  'font/otf',
   '.txt':  'text/plain; charset=utf-8',
 };
 
@@ -188,6 +197,104 @@ async function apiDeleteImage(req, res, name) {
   }
 }
 
+// --------------------------------------------------- /api/fonts
+// A small JSON index tracks { name -> family } so uploads preserve the
+// human-facing family name across restarts.
+async function readFontIndex() {
+  try {
+    const buf = await fsp.readFile(FONTS_INDEX, 'utf8');
+    const v = JSON.parse(buf);
+    return (v && typeof v === 'object') ? v : {};
+  } catch (_) { return {}; }
+}
+async function writeFontIndex(idx) {
+  await fsp.writeFile(FONTS_INDEX, JSON.stringify(idx, null, 2));
+}
+
+// Allow-list font extensions
+const FONT_EXT_RE = /\.(woff2?|ttf|otf)$/i;
+const FONT_MIME_OK = /^(font\/|application\/(x-)?font|application\/octet-stream|application\/vnd\.ms-fontobject)/i;
+
+async function apiListFonts(req, res) {
+  try {
+    const idx = await readFontIndex();
+    let files = [];
+    try { files = await fsp.readdir(FONTS); } catch (_) { files = []; }
+    const rows = await Promise.all(files
+      .filter(f => FONT_EXT_RE.test(f))
+      .map(async f => {
+        const st = await fsp.stat(path.join(FONTS, f));
+        return {
+          name: f,
+          family: idx[f] || f.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '),
+          url: `fonts/${f}`,
+          size: st.size,
+          mtime: st.mtime,
+        };
+      }));
+    rows.sort((a, b) => a.family.localeCompare(b.family));
+    sendJson(res, 200, { ok: true, fonts: rows });
+  } catch (e) {
+    sendError(res, 500, e.message);
+  }
+}
+
+async function apiUploadFont(req, res) {
+  try {
+    const body = await readBody(req);
+    const payload = JSON.parse(body.toString('utf8'));
+    const filename = sanitizeFilename(payload.filename);
+    if (!filename) return sendError(res, 400, 'Invalid filename');
+    if (!FONT_EXT_RE.test(filename)) {
+      return sendError(res, 400, 'Unsupported font extension (expected .woff, .woff2, .ttf or .otf)');
+    }
+    const family = String(payload.family || '').trim();
+    if (!family) return sendError(res, 400, 'Missing font family name');
+    const m = /^data:([^;]+);base64,(.+)$/s.exec(payload.dataUrl || '');
+    if (!m) return sendError(res, 400, 'Invalid dataUrl');
+    const mime = m[1].toLowerCase();
+    if (!FONT_MIME_OK.test(mime) && mime !== '') {
+      return sendError(res, 400, 'Not a font file (mime: ' + mime + ')');
+    }
+    const data = Buffer.from(m[2], 'base64');
+    const target = safeResolve(FONTS, filename);
+    if (!target) return sendError(res, 400, 'Bad path');
+    await fsp.writeFile(target, data);
+
+    const idx = await readFontIndex();
+    idx[filename] = family;
+    await writeFontIndex(idx);
+
+    sendJson(res, 200, {
+      ok: true,
+      name: filename,
+      family,
+      url: `fonts/${filename}`,
+    });
+  } catch (e) {
+    sendError(res, 400, e.message);
+  }
+}
+
+async function apiDeleteFont(req, res, name) {
+  try {
+    const filename = sanitizeFilename(name);
+    if (!filename) return sendError(res, 400, 'Invalid filename');
+    const target = safeResolve(FONTS, filename);
+    if (!target) return sendError(res, 400, 'Bad path');
+    try {
+      await fsp.unlink(target);
+    } catch (e) {
+      if (e.code !== 'ENOENT') throw e; // ignore "already gone", surface EPERM/etc.
+    }
+    const idx = await readFontIndex();
+    if (idx[filename]) { delete idx[filename]; await writeFontIndex(idx); }
+    sendJson(res, 200, { ok: true });
+  } catch (e) {
+    sendError(res, 500, e.message);
+  }
+}
+
 // --------------------------------------------------- static
 async function serveStatic(req, res, pathname) {
   // Default file
@@ -222,6 +329,11 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/images'  && req.method === 'POST') return apiUploadImage(req, res);
     const delMatch = /^\/api\/images\/(.+)$/.exec(p);
     if (delMatch && req.method === 'DELETE') return apiDeleteImage(req, res, delMatch[1]);
+
+    if (p === '/api/fonts' && req.method === 'GET')  return apiListFonts(req, res);
+    if (p === '/api/fonts' && req.method === 'POST') return apiUploadFont(req, res);
+    const delFontMatch = /^\/api\/fonts\/(.+)$/.exec(p);
+    if (delFontMatch && req.method === 'DELETE') return apiDeleteFont(req, res, delFontMatch[1]);
 
     if (p.startsWith('/api/')) return sendError(res, 404, 'No such endpoint');
 

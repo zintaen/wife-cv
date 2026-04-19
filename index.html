@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet"
+  <link id="base-google-fonts" rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Bebas+Neue&family=Dancing+Script:wght@500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
 
@@ -19,130 +19,174 @@
 </head>
 <body data-theme="editorial" data-orientation="landscape">
 
-  <aside class="sidebar" aria-label="Portfolio studio">
-    <header class="sidebar__brand">
-      <div class="sidebar__monogram">LT</div>
-      <div>
-        <div class="sidebar__title">Portfolio Studio</div>
-        <div class="sidebar__subtitle">Lâm Thanh Tiệp</div>
-      </div>
-    </header>
+  <!-- Top toolbar: brand · title · language segmented · theme · orient · save · print · status -->
+  <header class="toolbar" aria-label="Global controls">
+    <div class="toolbar__brand" data-i18n-title="rail.brand" title="Portfolio Studio — Lâm Thanh Tiệp">LT</div>
+    <div class="toolbar__title">
+      Portfolio Studio
+      <small data-i18n="sidebar.subtitle">Lâm Thanh Tiệp</small>
+    </div>
 
-    <section class="sidebar__section">
-      <h3 class="sidebar__heading">Language</h3>
-      <div class="chips" id="lang-chips" role="radiogroup">
-        <button class="chip is-active" data-lang="vi" role="radio" aria-checked="true">Tiếng Việt</button>
-        <button class="chip" data-lang="en" role="radio" aria-checked="false">English</button>
-        <button class="chip" data-lang="zh" role="radio" aria-checked="false">中文</button>
-      </div>
-    </section>
+    <div class="toolbar__spacer"></div>
 
-    <section class="sidebar__section">
-      <h3 class="sidebar__heading">
-        Design theme
-        <button class="btn--xs" id="reset-theme-btn" title="Reset theme colors to default">Reset</button>
-      </h3>
-      <div class="theme-switcher" id="theme-chips" role="radiogroup">
-        <button class="theme-chip is-active" data-theme="editorial" role="radio" aria-checked="true">
-          <span class="theme-chip__swatch theme-chip__swatch--editorial"></span>
-          <strong>Editorial</strong>
-        </button>
-        <button class="theme-chip" data-theme="cinematic" role="radio" aria-checked="false">
-          <span class="theme-chip__swatch theme-chip__swatch--cinematic"></span>
-          <strong>Cinematic</strong>
-        </button>
-        <button class="theme-chip" data-theme="minimal" role="radio" aria-checked="false">
-          <span class="theme-chip__swatch theme-chip__swatch--minimal"></span>
-          <strong>Minimal</strong>
-        </button>
-        <button class="theme-chip" data-theme="romantic" role="radio" aria-checked="false">
-          <span class="theme-chip__swatch theme-chip__swatch--romantic"></span>
-          <strong>Romantic</strong>
-        </button>
-        <button class="theme-chip" data-theme="couture" role="radio" aria-checked="false">
-          <span class="theme-chip__swatch theme-chip__swatch--couture"></span>
-          <strong>Couture</strong>
-        </button>
-      </div>
-      <div class="theme-editor" id="theme-editor">
-        <label class="color-field">Accent
-          <input type="color" data-var="--accent" />
-        </label>
-        <label class="color-field">Heading
-          <input type="color" data-var="--heading" />
-        </label>
-        <label class="color-field">Page bg
-          <input type="color" data-var="--page-bg" />
-        </label>
-        <label class="color-field">Text
-          <input type="color" data-var="--fg" />
-        </label>
-      </div>
-    </section>
+    <!-- Always-visible language segmented -->
+    <div class="lang-seg" id="lang-seg" role="radiogroup" data-i18n-title="rail.lang" title="Language">
+      <button class="lang-seg__btn is-active" data-lang="vi" role="radio" aria-checked="true" aria-label="Tiếng Việt">VI</button>
+      <button class="lang-seg__btn"           data-lang="en" role="radio" aria-checked="false" aria-label="English">EN</button>
+      <button class="lang-seg__btn"           data-lang="zh" role="radio" aria-checked="false" aria-label="中文">中</button>
+    </div>
 
-    <section class="sidebar__section">
-      <h3 class="sidebar__heading">Print orientation</h3>
-      <div class="segmented" role="radiogroup">
-        <button class="segmented__btn is-active" data-orientation="landscape" role="radio" aria-checked="true">Landscape</button>
-        <button class="segmented__btn" data-orientation="portrait" role="radio" aria-checked="false">Portrait</button>
-      </div>
-    </section>
+    <button class="toolbar__btn" id="toolbar-style" data-i18n-title="rail.style" title="Theme &amp; Typography" aria-haspopup="true" aria-pressed="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2a10 10 0 0 0 0 20 5 5 0 0 0 5-5c0-1.5-1-2-2-2h-2a3 3 0 0 1 0-6h4.5A5.5 5.5 0 0 0 12 2z"/></svg>
+      <span data-i18n="toolbar.theme">Theme</span>
+    </button>
 
-    <section class="sidebar__section">
-      <div class="button-row">
-        <button class="btn btn--primary" id="save-btn" title="Save content.json to disk">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/>
-            <polyline points="7 3 7 8 15 8"/>
-          </svg>
-          Save
-        </button>
-        <button class="btn" id="print-btn" title="Print / Save as PDF">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-            <rect x="6" y="14" width="12" height="8"></rect>
-          </svg>
-          Print
-        </button>
-      </div>
-    </section>
+    <button class="toolbar__btn toolbar__btn--icon" id="toolbar-orient" data-i18n-title="rail.orient" title="Print orientation">
+      <svg class="rail__svg-landscape" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="1.5"/></svg>
+      <svg class="rail__svg-portrait"  width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><rect x="6" y="3" width="12" height="18" rx="1.5"/></svg>
+    </button>
 
-    <section class="sidebar__section">
-      <h3 class="sidebar__heading">
-        Sections
-        <button class="btn--xs" id="add-cat-btn" title="Add new section">+ Add</button>
-      </h3>
-      <div class="cat-list" id="cat-list"></div>
-    </section>
+    <button class="toolbar__btn toolbar__btn--primary" id="toolbar-save" data-i18n-title="rail.save" title="Save (⌘S)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <span data-i18n="toolbar.save">Save</span>
+    </button>
 
-    <section class="sidebar__section sidebar__section--editor">
-      <h3 class="sidebar__heading">Edit section</h3>
-      <div class="editor" id="editor">
-        <div class="editor__empty">Pick a section above to edit its content. Changes preview live.</div>
-      </div>
-    </section>
+    <button class="toolbar__btn toolbar__btn--icon" id="toolbar-print" data-i18n-title="rail.print" title="Print / Save as PDF">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    </button>
 
-    <footer class="sidebar__footer">
+    <div class="toolbar__status" id="status" data-i18n-title="status.tooltip" title="Save status"></div>
+  </header>
+
+  <!-- Sections list (narrow pane) -->
+  <aside class="sidebar-list" aria-label="Sections">
+    <div class="sidebar__head">
+      <h3 data-i18n="sidebar.heading.sections">Sections</h3>
+      <button class="btn--xs" id="add-cat-btn" data-i18n="sidebar.add" data-i18n-title="sidebar.add.title" title="Add new section">+ Add</button>
+    </div>
+    <div class="cat-list" id="cat-list"></div>
+    <footer class="sidebar__footer" data-i18n="sidebar.footer" data-i18n-html="1">
       Server-backed editor. Content is stored in <code>content.json</code>.
-      <span class="status is-saved" id="status">All changes saved</span>
     </footer>
   </aside>
 
+  <!-- Editor pane (wider) -->
+  <aside class="sidebar-editor" aria-label="Content editor">
+    <div class="sidebar__head">
+      <h3 data-i18n="sidebar.heading.edit">Edit section</h3>
+    </div>
+    <div class="editor" id="editor">
+      <div class="editor__empty" data-i18n="editor.empty">Pick a section above to edit its content. Changes preview live.</div>
+    </div>
+  </aside>
+
+  <!-- Live portfolio preview -->
   <main class="portfolio" id="portfolio" aria-busy="true">
-    <div class="loading">Loading portfolio…</div>
+    <div class="loading" data-i18n="loading">Loading portfolio…</div>
   </main>
 
-  <!-- Image picker modal -->
+  <!-- Docked style panel (right side) -->
+  <aside class="style-dock" id="style-dock" hidden aria-label="Theme and typography">
+    <div class="style-dock__head">
+      <h3 data-i18n="style.title">Theme &amp; Typography</h3>
+      <div class="style-dock__actions">
+        <button class="btn--xs" id="reset-theme-all" data-i18n="style.resetAll" data-i18n-title="style.resetAll.title" title="Reset all colors &amp; fonts for this theme">Reset theme</button>
+        <button class="btn--xs" id="style-dock-close" data-i18n="style.close" title="Close panel">Close</button>
+      </div>
+    </div>
+    <div class="style-panel">
+
+      <section class="style-section">
+        <h4 class="style-section__h" data-i18n="style.section.preset">Theme preset</h4>
+        <div class="theme-switcher" id="theme-chips" role="radiogroup">
+          <button class="theme-chip is-active" data-theme="editorial" role="radio" aria-checked="true">
+            <span class="theme-chip__swatch theme-chip__swatch--editorial"></span>
+            <strong>Editorial</strong>
+          </button>
+          <button class="theme-chip" data-theme="cinematic" role="radio" aria-checked="false">
+            <span class="theme-chip__swatch theme-chip__swatch--cinematic"></span>
+            <strong>Cinematic</strong>
+          </button>
+          <button class="theme-chip" data-theme="minimal" role="radio" aria-checked="false">
+            <span class="theme-chip__swatch theme-chip__swatch--minimal"></span>
+            <strong>Minimal</strong>
+          </button>
+          <button class="theme-chip" data-theme="romantic" role="radio" aria-checked="false">
+            <span class="theme-chip__swatch theme-chip__swatch--romantic"></span>
+            <strong>Romantic</strong>
+          </button>
+          <button class="theme-chip" data-theme="couture" role="radio" aria-checked="false">
+            <span class="theme-chip__swatch theme-chip__swatch--couture"></span>
+            <strong>Couture</strong>
+          </button>
+        </div>
+      </section>
+
+      <section class="style-section">
+        <h4 class="style-section__h">
+          <span data-i18n="style.section.colors">Colors</span>
+          <button class="btn--xs" id="reset-theme-colors" data-i18n="style.resetColors" data-i18n-title="style.resetColors" title="Reset colors">Reset colors</button>
+        </h4>
+        <div class="color-editor" id="color-editor">
+          <!-- built by JS -->
+        </div>
+      </section>
+
+      <section class="style-section">
+        <h4 class="style-section__h">
+          <span data-i18n="style.section.fonts">Typography</span>
+          <button class="btn--xs" id="reset-theme-fonts" data-i18n="style.resetFonts" data-i18n-title="style.resetFonts" title="Reset fonts">Reset fonts</button>
+        </h4>
+        <div class="font-editor" id="font-editor">
+          <!-- built by JS -->
+        </div>
+
+        <details class="font-library">
+          <summary data-i18n="style.customFonts">Custom fonts</summary>
+          <div class="font-library__body">
+            <div class="font-library__upload">
+              <label class="btn btn--primary btn--xs" for="font-upload" data-i18n="style.uploadFont">+ Upload font</label>
+              <input type="file" id="font-upload" accept=".woff,.woff2,.ttf,.otf,font/*" hidden multiple />
+              <input type="text" class="input" id="font-upload-family" data-i18n-placeholder="style.familyPlaceholder" placeholder="Family name (e.g. My Display)" />
+              <p class="hint" data-i18n="style.uploadHint">Upload .woff2, .woff, .ttf or .otf. Give it a family name so you can pick it from the dropdown above.</p>
+            </div>
+            <div class="font-library__list" id="font-library-list"></div>
+          </div>
+        </details>
+
+        <details class="font-library">
+          <summary data-i18n="style.loadGoogle">Load a Google Font</summary>
+          <div class="font-library__body">
+            <div class="row-2" style="align-items:end">
+              <label class="field">
+                <span class="field__label" data-i18n="style.familyLabel">Family name</span>
+                <input type="text" class="input" id="gf-family" data-i18n-placeholder="style.googlePlaceholder" placeholder="e.g. Merriweather" />
+              </label>
+              <button class="btn btn--xs" id="gf-load" data-i18n="style.loadFontBtn">Load font</button>
+            </div>
+            <p class="hint">
+              <a href="https://fonts.google.com/" id="gf-browse" target="_blank" rel="noopener noreferrer" class="gf-link" data-i18n-title="style.browseGoogle.title" title="Open Google Fonts in a new tab">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                <span data-i18n="style.browseGoogle">Browse Google Fonts ↗</span>
+              </a>
+            </p>
+            <p class="hint" data-i18n="style.loadGoogleHint">Type any Google Fonts family. It's added to the Typography dropdowns above.</p>
+          </div>
+        </details>
+      </section>
+
+    </div>
+  </aside>
+
+  <!-- Image picker modal (kept as a modal; only opens while inserting an image) -->
   <div class="modal" id="img-picker" hidden>
     <div class="modal__panel">
       <div class="modal__head">
-        <h3>Choose an image</h3>
+        <h3 data-i18n="picker.title">Choose an image</h3>
         <div class="modal__actions">
-          <label class="btn btn--primary" for="img-upload">+ Upload</label>
+          <label class="btn btn--primary" for="img-upload" data-i18n="picker.upload">+ Upload</label>
           <input type="file" id="img-upload" accept="image/*" hidden multiple />
-          <button class="btn" id="img-picker-close">Close</button>
+          <button class="btn" id="img-picker-close" data-i18n="picker.close">Close</button>
         </div>
       </div>
       <div class="picker-grid" id="picker-grid"></div>

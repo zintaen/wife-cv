@@ -60,5 +60,5 @@ body[data-theme="romantic"] .media-card__play { font-style: italic; font-weight:
 body[data-theme="romantic"] .info__fields { border-top-color: #c46d78; }
 body[data-theme="romantic"] .training__num { font-family: var(--font-script); color: #c46d78; font-size: 22pt; }
 
-body[data-theme="romantic"] .page__footer::before { content: "~ Lâm Thanh Tiệp ~"; font-family: var(--font-script); font-size: 11pt; letter-spacing: .04em; text-transform: none; }
+body[data-theme="romantic"] .page__footer::before { content: "~ " attr(data-footer) " ~"; font-family: var(--font-script); font-size: 11pt; letter-spacing: .04em; text-transform: none; }
 body[data-theme="romantic"] .page__footer::after { content: attr(data-page); }
