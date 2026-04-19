@@ -1,0 +1,40 @@
+/* =========================================================================
+   Theme: EDITORIAL (default)
+   Warm ivory magazine with deep espresso + antique gold accents.
+   ========================================================================= */
+body[data-theme="editorial"] {
+  --app-bg: #e9e1d1;
+  --sidebar-bg: #1f1712;
+  --sidebar-fg: #f7ede0;
+
+  --page-bg: #fbf6ec;
+  --page-fg: #2d2419;
+  --fg: #2d2419;
+  --fg-muted: #7a6b57;
+  --heading: #231a10;
+
+  --accent: #a87e45;
+  --on-accent: #fbf6ec;
+
+  --surface-1: #fbf6ec;
+  --surface-2: #efe5d0;
+  --rule: rgba(35, 26, 16, 0.18);
+  --ring-track: rgba(35, 26, 16, 0.08);
+
+  --font-display: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-body: "Be Vietnam Pro", "Inter", system-ui, sans-serif;
+  --font-script: "Cormorant Garamond", serif;
+}
+
+body[data-theme="editorial"] .page__footer::before { content: "Lâm Thanh Tiệp"; letter-spacing: .3em; }
+body[data-theme="editorial"] .page__footer::after { content: attr(data-page); }
+
+body[data-theme="editorial"] .cover__left { background: #efe5d0; }
+body[data-theme="editorial"] .cover__kicker { color: #7a6b57; }
+body[data-theme="editorial"] .cover__name-frame {
+  border: 2px solid #231a10;
+  color: #231a10;
+}
+body[data-theme="editorial"] .cover__right {
+  background-color: #2a2218;
+}

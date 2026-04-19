@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <title>Lâm Thanh Tiệp — Portfolio Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Bebas+Neue&family=Dancing+Script:wght@500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="styles/theme-editorial.css" />
+  <link rel="stylesheet" href="styles/theme-cinematic.css" />
+  <link rel="stylesheet" href="styles/theme-minimal.css" />
+  <link rel="stylesheet" href="styles/theme-romantic.css" />
+  <link rel="stylesheet" href="styles/theme-couture.css" />
+</head>
+<body data-theme="editorial" data-orientation="landscape">
+
+  <aside class="sidebar" aria-label="Portfolio studio">
+    <header class="sidebar__brand">
+      <div class="sidebar__monogram">LT</div>
+      <div>
+        <div class="sidebar__title">Portfolio Studio</div>
+        <div class="sidebar__subtitle">Lâm Thanh Tiệp</div>
+      </div>
+    </header>
+
+    <section class="sidebar__section">
+      <h3 class="sidebar__heading">Language</h3>
+      <div class="chips" id="lang-chips" role="radiogroup">
+        <button class="chip is-active" data-lang="vi" role="radio" aria-checked="true">Tiếng Việt</button>
+        <button class="chip" data-lang="en" role="radio" aria-checked="false">English</button>
+        <button class="chip" data-lang="zh" role="radio" aria-checked="false">中文</button>
+      </div>
+    </section>
+
+    <section class="sidebar__section">
+      <h3 class="sidebar__heading">
+        Design theme
+        <button class="btn--xs" id="reset-theme-btn" title="Reset theme colors to default">Reset</button>
+      </h3>
+      <div class="theme-switcher" id="theme-chips" role="radiogroup">
+        <button class="theme-chip is-active" data-theme="editorial" role="radio" aria-checked="true">
+          <span class="theme-chip__swatch theme-chip__swatch--editorial"></span>
+          <strong>Editorial</strong>
+        </button>
+        <button class="theme-chip" data-theme="cinematic" role="radio" aria-checked="false">
+          <span class="theme-chip__swatch theme-chip__swatch--cinematic"></span>
+          <strong>Cinematic</strong>
+        </button>
+        <button class="theme-chip" data-theme="minimal" role="radio" aria-checked="false">
+          <span class="theme-chip__swatch theme-chip__swatch--minimal"></span>
+          <strong>Minimal</strong>
+        </button>
+        <button class="theme-chip" data-theme="romantic" role="radio" aria-checked="false">
+          <span class="theme-chip__swatch theme-chip__swatch--romantic"></span>
+          <strong>Romantic</strong>
+        </button>
+        <button class="theme-chip" data-theme="couture" role="radio" aria-checked="false">
+          <span class="theme-chip__swatch theme-chip__swatch--couture"></span>
+          <strong>Couture</strong>
+        </button>
+      </div>
+      <div class="theme-editor" id="theme-editor">
+        <label class="color-field">Accent
+          <input type="color" data-var="--accent" />
+        </label>
+        <label class="color-field">Heading
+          <input type="color" data-var="--heading" />
+        </label>
+        <label class="color-field">Page bg
+          <input type="color" data-var="--page-bg" />
+        </label>
+        <label class="color-field">Text
+          <input type="color" data-var="--fg" />
+        </label>
+      </div>
+    </section>
+
+    <section class="sidebar__section">
+      <h3 class="sidebar__heading">Print orientation</h3>
+      <div class="segmented" role="radiogroup">
+        <button class="segmented__btn is-active" data-orientation="landscape" role="radio" aria-checked="true">Landscape</button>
+        <button class="segmented__btn" data-orientation="portrait" role="radio" aria-checked="false">Portrait</button>
+      </div>
+    </section>
+
+    <section class="sidebar__section">
+      <div class="button-row">
+        <button class="btn btn--primary" id="save-btn" title="Save content.json to disk">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save
+        </button>
+        <button class="btn" id="print-btn" title="Print / Save as PDF">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          Print
+        </button>
+      </div>
+    </section>
+
+    <section class="sidebar__section">
+      <h3 class="sidebar__heading">
+        Sections
+        <button class="btn--xs" id="add-cat-btn" title="Add new section">+ Add</button>
+      </h3>
+      <div class="cat-list" id="cat-list"></div>
+    </section>
+
+    <section class="sidebar__section sidebar__section--editor">
+      <h3 class="sidebar__heading">Edit section</h3>
+      <div class="editor" id="editor">
+        <div class="editor__empty">Pick a section above to edit its content. Changes preview live.</div>
+      </div>
+    </section>
+
+    <footer class="sidebar__footer">
+      Server-backed editor. Content is stored in <code>content.json</code>.
+      <span class="status is-saved" id="status">All changes saved</span>
+    </footer>
+  </aside>
+
+  <main class="portfolio" id="portfolio" aria-busy="true">
+    <div class="loading">Loading portfolio…</div>
+  </main>
+
+  <!-- Image picker modal -->
+  <div class="modal" id="img-picker" hidden>
+    <div class="modal__panel">
+      <div class="modal__head">
+        <h3>Choose an image</h3>
+        <div class="modal__actions">
+          <label class="btn btn--primary" for="img-upload">+ Upload</label>
+          <input type="file" id="img-upload" accept="image/*" hidden multiple />
+          <button class="btn" id="img-picker-close">Close</button>
+        </div>
+      </div>
+      <div class="picker-grid" id="picker-grid"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="scripts/portfolio.js"></script>
+</body>
+</html>

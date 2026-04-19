@@ -1,0 +1,53 @@
+/* =========================================================================
+   Theme: CINEMATIC
+   Dramatic dark theme with amber/gold accents — movie-poster feel.
+   ========================================================================= */
+body[data-theme="cinematic"] {
+  --app-bg: #0b0806;
+  --sidebar-bg: #0a0704;
+  --sidebar-fg: #f4e7c8;
+
+  --page-bg: #161109;
+  --page-fg: #efe4cc;
+  --fg: #efe4cc;
+  --fg-muted: #a08a63;
+  --heading: #fff2cf;
+
+  --accent: #e4b25b;
+  --on-accent: #1a1208;
+
+  --surface-1: #1b140a;
+  --surface-2: #241a0f;
+  --rule: rgba(244, 231, 200, 0.18);
+  --ring-track: rgba(244, 231, 200, 0.12);
+
+  --font-display: "Bebas Neue", "Playfair Display", Georgia, serif;
+  --font-body: "Be Vietnam Pro", "Inter", system-ui, sans-serif;
+  --font-script: "Playfair Display", serif;
+}
+
+body[data-theme="cinematic"] .section-head__title { letter-spacing: .04em; text-transform: uppercase; }
+body[data-theme="cinematic"] .cover__left { background: #14100a; }
+body[data-theme="cinematic"] .cover__kicker { color: #a08a63; }
+body[data-theme="cinematic"] .cover__name-frame {
+  border: 2px solid #e4b25b;
+  color: #fff2cf;
+}
+body[data-theme="cinematic"] .cover__right::after {
+  background: linear-gradient(90deg, rgba(11,8,6,.9), rgba(11,8,6,0) 30%, rgba(11,8,6,.55));
+}
+body[data-theme="cinematic"] .cover__right {
+  background-color: #000;
+  filter: saturate(1.1) contrast(1.05);
+}
+body[data-theme="cinematic"] .play-card,
+body[data-theme="cinematic"] .featured-play,
+body[data-theme="cinematic"] .media-card {
+  background: #1b140a;
+  border: 1px solid rgba(228,178,91,.15);
+}
+body[data-theme="cinematic"] .play-card__cap { background: #1b140a; }
+body[data-theme="cinematic"] .info__fields { border-top-color: #e4b25b; }
+
+body[data-theme="cinematic"] .page__footer::before { content: "Lâm Thanh Tiệp"; letter-spacing: .3em; color: #a08a63; }
+body[data-theme="cinematic"] .page__footer::after { content: attr(data-page); color: #a08a63; }
