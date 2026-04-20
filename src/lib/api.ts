@@ -19,17 +19,19 @@ async function jsonOrThrow<T>(r: Response): Promise<T> {
   return body ? (JSON.parse(body) as T) : ({} as T);
 }
 
-// Tries /api/content first. If that 404s (e.g. on Vercel), falls back to
-// /content.json — a copy of the source of truth baked into dist/ at build
-// time. The store treats a successful fallback as "static mode".
+// Prod builds (Vercel, Netlify, any plain static host) skip /api/content
+// entirely — there is no Node server there, so the request would 404 and
+// pollute the Network panel with a red row. Dev builds still try the API
+// first so editor saves round-trip through server.cjs.
 export async function getContent(): Promise<{ doc: ContentDoc; static: boolean }> {
-  try {
-    const doc = await jsonOrThrow<ContentDoc>(await fetch('/api/content', { cache: 'no-store' }));
-    return { doc, static: false };
-  } catch {
-    const doc = await jsonOrThrow<ContentDoc>(await fetch('/content.json', { cache: 'no-store' }));
-    return { doc, static: true };
+  if (!import.meta.env.PROD) {
+    try {
+      const doc = await jsonOrThrow<ContentDoc>(await fetch('/api/content', { cache: 'no-store' }));
+      return { doc, static: false };
+    } catch { /* server not up — fall through to the baked file */ }
   }
+  const doc = await jsonOrThrow<ContentDoc>(await fetch('/content.json', { cache: 'no-store' }));
+  return { doc, static: true };
 }
 
 export async function putContent(doc: ContentDoc): Promise<void> {
@@ -59,6 +61,9 @@ export async function deleteImage(name: string): Promise<void> {
 }
 
 export async function listFonts(): Promise<FontEntry[]> {
+  // Prod has no server and no editor UI, so there's nothing to enumerate.
+  // Google Fonts are still replayed from content.meta.google_fonts.
+  if (import.meta.env.PROD) return [];
   const r = await jsonOrThrow<{ fonts: FontEntry[] }>(await fetch('/api/fonts'));
   return r.fonts ?? [];
 }
