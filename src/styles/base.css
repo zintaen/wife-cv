@@ -65,22 +65,27 @@ body.is-dock-open {
     "list    editor  preview dock";
 }
 
-/* Static deploy (no Node API): the left editor columns are hidden, preview
-   fills the viewport. Save button and dirty indicator are suppressed too. */
+/* Static deploy (no Node API): the editor column is hidden, but the left
+   sections list stays as a navigator — clicking a row scrolls the matching
+   .page into view. Save button and dirty indicator are suppressed too. */
 body.is-static {
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    "toolbar"
-    "preview";
-}
-body.is-static.is-dock-open {
-  grid-template-columns: 1fr 340px;
+  grid-template-columns: 260px 1fr;
   grid-template-areas:
     "toolbar toolbar"
-    "preview dock";
+    "list    preview";
+}
+body.is-static.is-dock-open {
+  grid-template-columns: 260px 1fr 340px;
+  grid-template-areas:
+    "toolbar toolbar toolbar"
+    "list    preview dock";
 }
 body.is-static .toolbar__btn--primary,
 body.is-static .toolbar__status { display: none; }
+/* Viewer sidebar trims the editor affordances (add menu, drag handle,
+   footer copy) via conditional rendering in SidebarSections.tsx — the
+   cursor cue here makes it obvious rows are navigation. */
+body.is-static .cat-item { cursor: pointer; }
 
 /* React mounts into #root, and App wraps everything in .app. Neither may
    introduce its own layout box — the body IS the grid container, and the

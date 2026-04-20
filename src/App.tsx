@@ -65,7 +65,9 @@ export function App() {
   return (
     <div className="app">
       <Toolbar />
-      {isStatic ? null : <SidebarSections />}
+      {/* Left sidebar acts as a section navigator in static mode (no Add /
+          drag / editor footer); full editor chrome in dev. */}
+      <SidebarSections />
       {isStatic ? null : <SidebarEditor />}
       <Portfolio />
       <Toast />
