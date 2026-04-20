@@ -52,7 +52,10 @@ const sig = (o: unknown) => JSON.stringify(o);
 export const useStore = create<StoreState>((set, get) => ({
   content: null,
   originalSig: '',
-  isStatic: false,
+  // In prod builds we already know there's no Node API — start in static mode
+  // so the very first render hides the editor chrome. Otherwise the sidebars
+  // flash in for one frame before `load()` resolves and flips the flag.
+  isStatic: import.meta.env.PROD,
   lang: 'vi',
   vibe: 'editorial',
   orientation: 'landscape',

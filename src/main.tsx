@@ -5,6 +5,11 @@ import ReactDOM from 'react-dom/client';
 import { App } from '@/App';
 import '@/styles/base.css';
 
+// Tag the body synchronously in prod so the CSS grid collapses before React's
+// first paint. Otherwise there's a one-frame flash where the sidebar columns
+// are reserved even though the components don't render.
+if (import.meta.env.PROD) document.body.classList.add('is-static');
+
 const el = document.getElementById('root');
 if (!el) throw new Error('#root not found — check index.html');
 
