@@ -1,0 +1,23 @@
+/* ============================================================================
+   BOLLYWOOD MAXIMAL — Jewel saturation. Marigold, emerald, magenta. Gold
+   filigree as structure. Devanagari + Rozha One display.
+   ============================================================================ */
+body[data-vibe="bollywood-maximal"] {
+  --vibe-name: "Bollywood Maximal";
+  --bg:        #2A0E1E;
+  --ink:       #FFE9A8;
+  --muted:     #F0B47A;
+  --rule:      #D4A017;
+  --accent:    #E85A3C;
+  --paper:     #2A0E1E;
+
+  --bw-magenta: #C41E6D;
+  --bw-emerald: #1E6D3F;
+  --bw-marigold:#EFA82D;
+  --bw-gold:    #D4A017;
+
+  --font-display: 'Rozha One', 'Cormorant Garamond', serif;
+  --font-devanagari: 'Rozha One', serif;
+  --font-body:    'Cormorant Garamond', serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

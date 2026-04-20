@@ -1,0 +1,56 @@
+/* Centered marquee: script-calligraphy name at top over a golden deco frame,
+   portrait inset into an ornamental oval, roles as a single horizontal strip
+   under the frame. Opposite of the split-pane base cover. */
+.cover {
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 11mm, rgba(212,160,23,.06) 11mm 11.3mm),
+    var(--paper);
+  padding: 18mm 18mm 22mm;
+  display: flex; flex-direction: column; align-items: center; gap: 8mm;
+  color: var(--ink);
+}
+.plate {
+  position: relative;
+  width: 100%;
+  padding: 8mm 10mm 0;
+  border: 1px solid var(--sh-gold);
+  box-shadow: inset 0 0 0 2mm var(--paper), inset 0 0 0 2.3mm var(--sh-gold);
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+}
+.script {
+  font-family: var(--font-script);
+  font-size: 54pt; line-height: .9;
+  color: var(--sh-cinnabar);
+  margin: 6mm 0 2mm;
+}
+.cjk {
+  font-family: var(--font-cjk);
+  font-size: 24pt; letter-spacing: .4em;
+  color: var(--sh-ink);
+}
+.portrait {
+  --sz: 82mm;
+  width: var(--sz); height: var(--sz);
+  border: 0.5mm solid var(--sh-gold);
+  box-shadow: 0 0 0 3mm var(--paper), 0 0 0 3.3mm var(--sh-gold);
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 4mm 0;
+}
+.portrait img { width: 100%; height: 100%; object-fit: cover; }
+.marquee {
+  font-family: var(--font-display);
+  font-size: 24pt; font-weight: 500; letter-spacing: .22em;
+  color: var(--sh-ink);
+  padding: 3mm 0 2mm;
+  border-top: 1px solid var(--sh-gold);
+  border-bottom: 1px solid var(--sh-gold);
+  width: 100%; text-align: center;
+}
+.roles {
+  display: flex; gap: 10mm; justify-content: center;
+  font-family: var(--font-ui); font-size: 10pt; letter-spacing: .28em;
+  color: var(--sh-cinnabar); text-transform: uppercase;
+  padding: 2mm 0 6mm;
+}

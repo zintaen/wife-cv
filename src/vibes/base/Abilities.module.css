@@ -1,0 +1,31 @@
+.abilities { display: grid; grid-template-columns: 1fr 1.3fr; gap: 12mm; margin-top: 12mm;
+             height: calc(100% - 44mm); }
+.photo { position: relative; overflow: hidden; height: 100%; }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8mm 6mm;
+  align-content: start;
+}
+.skill { display: flex; flex-direction: column; align-items: center; gap: 3mm; }
+.ring {
+  --sz: 30mm;
+  width: var(--sz); height: var(--sz);
+  border-radius: 50%;
+  background:
+    conic-gradient(var(--accent) calc(var(--pct) * 1%), var(--rule) 0);
+  display: grid; place-items: center;
+  position: relative;
+}
+.ring::before {
+  content: ''; position: absolute; inset: 2.5mm; border-radius: 50%;
+  background: var(--paper);
+}
+.pct {
+  position: relative;
+  font-family: var(--font-display); font-size: 13pt; font-weight: 600; color: var(--ink);
+}
+.name {
+  font-family: var(--font-ui);
+  font-size: 9pt; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  text-align: center;
+}

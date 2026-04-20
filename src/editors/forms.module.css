@@ -1,0 +1,29 @@
+.group { display: flex; flex-direction: column; gap: 12px; }
+.row   { display: flex; flex-direction: column; gap: 4px; }
+.label {
+  font-family: var(--font-ui); font-size: 10pt;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--chrome-muted);
+}
+.langTabs {
+  display: inline-flex;
+  border: 1px solid var(--chrome-rule);
+  align-self: flex-start;
+}
+.langTab {
+  background: transparent; color: var(--chrome-muted);
+  border: 0; padding: 3px 8px; font: inherit; font-size: 10pt; cursor: pointer;
+}
+.langTab.active { background: var(--chrome-fg); color: var(--chrome-bg); font-weight: 600; }
+.input, .area {
+  width: 100%; box-sizing: border-box;
+  background: var(--chrome-hover); color: var(--chrome-fg);
+  border: 1px solid var(--chrome-rule); padding: 7px 10px;
+  font: inherit; font-size: 12px;
+}
+.area  { min-height: 90px; resize: vertical; font-family: var(--font-body); line-height: 1.5; }
+.card  { padding: 10px; border: 1px solid var(--chrome-rule); display: flex; flex-direction: column; gap: 8px; }
+.btnRow { display: flex; gap: 8px; align-items: center; }
+.jsonArea {
+  font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 11px;
+}

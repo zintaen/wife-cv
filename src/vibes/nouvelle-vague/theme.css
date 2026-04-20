@@ -1,0 +1,23 @@
+/* ============================================================================
+   FRENCH NOUVELLE VAGUE — Godard and Varda. Newsprint grid. Red/black/cream.
+   Jump-cut hierarchy; Archivo Black gestures.
+   ============================================================================ */
+body[data-vibe="nouvelle-vague"] {
+  --vibe-name: "Nouvelle Vague";
+  --bg:        #F9F2E8;
+  --ink:       #1A1A1A;
+  --muted:     #575858;
+  --rule:      #1A1A1A;
+  --accent:    #C91E1E;
+  --paper:     #F9F2E8;
+
+  --nv-red:     #C91E1E;
+  --nv-ink:     #1A1A1A;
+  --nv-cream:   #F9F2E8;
+  --nv-grey:    #E2D0D2;
+
+  --font-display: 'Archivo Black', 'Bodoni Moda', sans-serif;
+  --font-body:    'EB Garamond', Georgia, serif;
+  --font-mono:    'Courier Prime', 'JetBrains Mono', monospace;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

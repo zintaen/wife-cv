@@ -1,0 +1,17 @@
+/* ============================================================================
+   VOGUE EDITORIAL — Fashion-forward. Magazine-grade. Bodoni Moda for the
+   masthead; warm bone paper with tobacco and walnut accents.
+   ============================================================================ */
+body[data-vibe="vogue-editorial"] {
+  --vibe-name: "Vogue Editorial";
+  --bg:        #FAF7F2;
+  --ink:       #1A1A1A;
+  --muted:     #6B6055;
+  --rule:      #D9D0C3;
+  --accent:    #8B6F4B;
+  --paper:     #FAF7F2;
+
+  --font-display: 'Bodoni Moda', 'Cormorant Garamond', serif;
+  --font-body:    'EB Garamond', Georgia, serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

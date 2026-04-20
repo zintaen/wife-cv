@@ -1,0 +1,22 @@
+/* ============================================================================
+   KOREAN HANOK PRESTIGE — Park Chan-wook austerity. Bone, ink, aged wood,
+   a single red seal. Noto Serif KR for hangul equal weighting.
+   ============================================================================ */
+body[data-vibe="hanok-prestige"] {
+  --vibe-name: "Hanok Prestige";
+  --bg:        #F5EFE4;
+  --ink:       #1C1714;
+  --muted:     #6B5A46;
+  --rule:      #1C1714;
+  --accent:    #8C1F0C;
+  --paper:     #F5EFE4;
+
+  --hk-seal:    #8C1F0C;
+  --hk-wood:    #6B4A2F;
+  --hk-ink:     #1C1714;
+
+  --font-display: 'Cormorant Garamond', 'Noto Serif KR', serif;
+  --font-cjk:     'Noto Serif KR', 'Noto Serif SC', serif;
+  --font-body:    'Cormorant Garamond', 'Noto Serif KR', serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

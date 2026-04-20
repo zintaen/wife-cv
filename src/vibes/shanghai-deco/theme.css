@@ -1,0 +1,24 @@
+/* ============================================================================
+   SHANGHAI DECO — 1930s chinoiserie. Zhang Yimou cinnabar with gold-leaf
+   ornament on bone. Script calligraphy as the marquee.
+   ============================================================================ */
+body[data-vibe="shanghai-deco"] {
+  --vibe-name: "Shanghai Deco";
+  --bg:        #F4E4BC;
+  --ink:       #2C1810;
+  --muted:     #8B4513;
+  --rule:      #A52A2A;
+  --accent:    #D4A017;
+  --paper:     #F4E4BC;
+
+  --sh-cinnabar: #A52A2A;
+  --sh-gold:     #D4A017;
+  --sh-bone:     #F4E4BC;
+  --sh-ink:      #2C1810;
+
+  --font-display: 'Cinzel', 'Bodoni Moda', serif;
+  --font-script:  'Allura', 'Dancing Script', cursive;
+  --font-cjk:     'Ma Shan Zheng', 'Noto Serif SC', serif;
+  --font-body:    'Cormorant Garamond', 'Noto Serif SC', serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

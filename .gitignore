@@ -23,3 +23,11 @@ yarn-error.log*
 # Local env
 .env
 .env.local
+
+# Build output
+dist/
+tsconfig.tsbuildinfo
+vite.config.ts.timestamp-*
+
+# Archived vanilla frontend (kept locally for reference; not pushed)
+.legacy/

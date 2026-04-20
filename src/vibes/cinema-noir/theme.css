@@ -1,0 +1,17 @@
+/* ============================================================================
+   CINÉMA NOIR — A24 prestige indie. Late-night cinema poster glow. Ink on
+   cream with a single tungsten-glow accent, Didone for the playbill.
+   ============================================================================ */
+body[data-vibe="cinema-noir"] {
+  --vibe-name: "Cinéma Noir";
+  --bg:        #F2ECE0;
+  --ink:       #0C0A08;
+  --muted:     #4A3E34;
+  --rule:      #1A1814;
+  --accent:    #B4843C;
+  --paper:     #F2ECE0;
+
+  --font-display: 'Playfair Display', 'Cormorant Garamond', serif;
+  --font-body:    'Cormorant Garamond', Georgia, serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

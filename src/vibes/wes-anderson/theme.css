@@ -1,0 +1,22 @@
+/* ============================================================================
+   WES ANDERSON SYMMETRY — Pastel precision. Centered composition. Typewriter
+   serif. Softened blush, sage, dusty rose, tobacco.
+   ============================================================================ */
+body[data-vibe="wes-anderson"] {
+  --vibe-name: "Wes Anderson";
+  --bg:        #F7E4D1;
+  --ink:       #2A2520;
+  --muted:     #A67458;
+  --rule:      #2A2520;
+  --accent:    #5B6F5B;
+  --paper:     #F7E4D1;
+
+  --wes-blush:  #F3C7B2;
+  --wes-sage:   #5B6F5B;
+  --wes-rose:   #C77AA5;
+  --wes-tobacco:#A67458;
+
+  --font-display: 'Archivo', 'Futura', sans-serif;
+  --font-body:    'Courier Prime', 'JetBrains Mono', monospace;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

@@ -1,0 +1,11 @@
+.training { display: grid; grid-template-columns: 1fr 1fr; gap: 12mm; margin-top: 12mm; height: calc(100% - 44mm); }
+.list     { display: flex; flex-direction: column; gap: 6mm; }
+.item     { display: grid; grid-template-columns: 14mm 1fr; align-items: baseline; gap: 4mm;
+            padding-bottom: 4mm; border-bottom: 1px solid var(--rule); }
+.num      { font-family: var(--font-display); font-size: 22pt; color: var(--accent); line-height: 1; }
+.title    { font-family: var(--font-display); font-size: 14pt; font-weight: 500; margin: 0; }
+.inst     { font-family: var(--font-ui); font-size: 10pt; color: var(--muted);
+            letter-spacing: .08em; text-transform: uppercase; margin-top: 1mm; }
+.photos   { display: grid; grid-template-rows: 1fr 1fr; gap: 4mm; height: 100%; }
+.photos > div { position: relative; overflow: hidden; }
+.photos img { width: 100%; height: 100%; object-fit: cover; }

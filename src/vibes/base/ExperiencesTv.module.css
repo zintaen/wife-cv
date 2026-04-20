@@ -1,0 +1,13 @@
+.tv { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12mm; margin-top: 12mm;
+      height: calc(100% - 44mm); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+        gap: 4mm; height: 100%; }
+.grid > div { position: relative; overflow: hidden; }
+.grid img { width: 100%; height: 100%; object-fit: cover; }
+.copy p { font-family: var(--font-body); font-size: 11pt; line-height: 1.55; color: var(--ink); margin: 0 0 6mm; }
+.shows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3mm; }
+.shows li {
+  font-family: var(--font-ui); font-size: 10pt; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+  padding-bottom: 2mm; border-bottom: 1px solid var(--rule);
+}

@@ -1,0 +1,23 @@
+/* ============================================================================
+   JAPANESE PHOTOBOOK — Araki and Ozu. Wabi-sabi. Generous silence. Vertical
+   kanji whispers. A single hanko in cinnabar.
+   ============================================================================ */
+body[data-vibe="japanese-photobook"] {
+  --vibe-name: "Japanese Photobook";
+  --bg:        #F2EDE0;
+  --ink:       #0D0D08;
+  --muted:     #9A6F56;
+  --rule:      #0D0D08;
+  --accent:    #A33124;
+  --paper:     #F2EDE0;
+
+  --jp-hanko:   #A33124;
+  --jp-sumi:    #0D0D08;
+  --jp-bone:    #F2EDE0;
+
+  --font-display: 'Fraunces', 'Cormorant Garamond', serif;
+  --font-cjk:     'Noto Serif JP', 'Noto Serif SC', serif;
+  --font-body:    'Fraunces', 'Noto Serif JP', serif;
+  --font-mono:    'JetBrains Mono', 'Courier Prime', monospace;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

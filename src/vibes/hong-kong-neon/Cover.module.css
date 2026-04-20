@@ -1,0 +1,51 @@
+/* Rain-blurred humid night: portrait occupies the whole page, CJK masthead
+   falls vertically down the right edge, Latin name reads horizontally at the
+   bottom-left. The opposite arrangement of the base Cover. */
+.cover {
+  position: absolute; inset: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+.portrait {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(15,10,20,0) 40%, rgba(15,10,20,.75) 100%),
+              linear-gradient(135deg, var(--hk-bruise), var(--rule));
+  overflow: hidden;
+}
+.portrait img {
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: .9; mix-blend-mode: luminosity;
+}
+.neon {
+  position: absolute; top: 16mm; right: 16mm; bottom: 16mm;
+  width: 18mm;
+  font-family: var(--font-cjk);
+  font-size: 34pt; font-weight: 500; color: var(--ink);
+  display: flex; flex-direction: column; align-items: center; gap: 6mm;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+.label {
+  position: absolute; left: 16mm; top: 16mm;
+  font-family: var(--font-ui);
+  font-size: 9pt; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: 2mm;
+  border-bottom: 1px solid var(--accent);
+}
+.name {
+  position: absolute; left: 16mm; bottom: 36mm;
+  font-family: var(--font-display);
+  font-size: 46pt; font-weight: 500; line-height: .95;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  max-width: 180mm;
+}
+.roles {
+  position: absolute; left: 16mm; bottom: 16mm;
+  display: flex; gap: 5mm;
+  font-family: var(--font-ui);
+  font-size: 9pt; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--accent);
+}
+.roles span:not(:last-child)::after { content: '  ·  '; color: var(--muted); margin-left: 5mm; }

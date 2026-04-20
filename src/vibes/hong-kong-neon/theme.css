@@ -1,0 +1,23 @@
+/* ============================================================================
+   HONG KONG NEON — Wong Kar-wai, In the Mood for Love, 2046. Humid rain-blurred
+   night. Vertical CJK serif over lacquer reds and bruise purples.
+   ============================================================================ */
+body[data-vibe="hong-kong-neon"] {
+  --vibe-name: "Hong Kong Neon";
+  --bg:        #0F0A14;
+  --ink:       #F4E4BC;
+  --muted:     #B28F72;
+  --rule:      #8C1F0C;
+  --accent:    #D9B079;
+  --paper:     #181019;
+
+  /* Secondary ambiance hues — used by decorated variants */
+  --hk-bruise: #2B1D3A;
+  --hk-neon:   #E85A3C;
+  --hk-jade:   #3F5E4A;
+
+  --font-display: 'Noto Serif TC', 'Noto Serif SC', 'Cormorant Garamond', serif;
+  --font-cjk:     'Noto Serif TC', 'Noto Serif SC', serif;
+  --font-body:    'Cormorant Garamond', 'Noto Serif TC', serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

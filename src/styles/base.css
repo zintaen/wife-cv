@@ -1,0 +1,258 @@
+/* ============================================================================
+   Base frame — shared by all vibes. Each vibe's theme.css sets palette +
+   typeface vars on <body>; this file uses them. Keep decorative layout OUT
+   of here — that lives in per-component CSS modules.
+   ============================================================================ */
+
+/* Google Fonts — every typeface any vibe might use, loaded once. */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Cinzel:wght@400;500;600;700;800&family=Allura&family=Archivo:wght@400;500;600;700;800&family=Archivo+Black&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Rozha+One&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: #2A2520;   /* studio chrome gets a dark frame; paper sits on top */
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  /* Studio chrome (not per-vibe) */
+  --chrome-bg:     #1A1714;
+  --chrome-fg:     #F5EFE4;
+  --chrome-muted:  #9A8B7A;
+  --chrome-rule:   #2E2824;
+  --chrome-hover:  #2C2624;
+}
+
+/* ========================================================= Layout grid */
+.app {
+  display: grid;
+  grid-template-rows:   48px 1fr;
+  grid-template-columns: 260px 360px 1fr;
+  grid-template-areas:
+    "toolbar toolbar   toolbar"
+    "list    editor    preview";
+  height: 100vh;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+}
+.app__toolbar { grid-area: toolbar; }
+.app__list    { grid-area: list; }
+.app__editor  { grid-area: editor; }
+.app__preview { grid-area: preview; }
+
+/* ========================================================= Toolbar */
+.toolbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 14px;
+  background: var(--chrome-bg);
+  border-bottom: 1px solid var(--chrome-rule);
+  color: var(--chrome-fg);
+}
+.toolbar__brand {
+  width: 28px; height: 28px;
+  border: 1px solid var(--chrome-fg);
+  display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 12px; letter-spacing: .1em;
+}
+.toolbar__title {
+  display: flex; flex-direction: column; gap: 0;
+  font-family: var(--font-display); font-weight: 500; font-size: 13px;
+  line-height: 1.1;
+}
+.toolbar__title small {
+  color: var(--chrome-muted);
+  font-family: var(--font-ui); font-size: 10px; letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.toolbar__spacer { flex: 1; }
+
+.toolbar__btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 10px;
+  background: transparent; color: var(--chrome-fg);
+  border: 1px solid var(--chrome-rule);
+  font: inherit; font-size: 12px;
+  cursor: pointer;
+}
+.toolbar__btn:hover { background: var(--chrome-hover); }
+.toolbar__btn--icon { width: 28px; padding: 0; justify-content: center; }
+.toolbar__btn--primary {
+  background: var(--chrome-fg); color: var(--chrome-bg); font-weight: 600;
+}
+.toolbar__btn--primary:hover { opacity: .9; }
+.toolbar__btn.is-active { background: var(--chrome-hover); }
+
+.lang-seg {
+  display: inline-flex;
+  border: 1px solid var(--chrome-rule); border-radius: 2px; overflow: hidden;
+}
+.lang-seg__btn {
+  background: transparent; color: var(--chrome-muted); border: 0;
+  padding: 0 10px; height: 28px; font: inherit; font-size: 11px;
+  letter-spacing: .1em; cursor: pointer;
+}
+.lang-seg__btn:not(:last-child) { border-right: 1px solid var(--chrome-rule); }
+.lang-seg__btn.is-active { background: var(--chrome-fg); color: var(--chrome-bg); font-weight: 600; }
+
+.toolbar__status {
+  font-family: var(--font-ui); font-size: 11px; color: var(--chrome-muted);
+  padding-left: 8px; border-left: 1px solid var(--chrome-rule);
+  height: 28px; display: inline-flex; align-items: center;
+}
+.toolbar__status.is-dirty  { color: #E8A76A; }
+.toolbar__status.is-saved  { color: #8BC58B; }
+
+/* ========================================================= Sidebars */
+.sidebar {
+  background: var(--chrome-bg);
+  border-right: 1px solid var(--chrome-rule);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--chrome-rule);
+}
+.sidebar__head h3 {
+  margin: 0; font-family: var(--font-ui);
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--chrome-muted); font-weight: 600;
+}
+.sidebar__body  { flex: 1; overflow: auto; }
+.sidebar__footer {
+  padding: 10px 14px;
+  border-top: 1px solid var(--chrome-rule);
+  color: var(--chrome-muted);
+  font-size: 10px; letter-spacing: .04em;
+}
+
+.btn--xs {
+  font: inherit; font-size: 11px; padding: 4px 8px;
+  background: transparent; color: var(--chrome-fg);
+  border: 1px solid var(--chrome-rule); cursor: pointer;
+}
+.btn--xs:hover { background: var(--chrome-hover); }
+
+/* ========================================================= Section list */
+.cat-list { padding: 8px 6px; display: flex; flex-direction: column; gap: 2px; }
+.cat-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent; color: var(--chrome-fg);
+  text-align: left; font: inherit; font-size: 12px;
+}
+.cat-row:hover { background: var(--chrome-hover); }
+.cat-row.is-active {
+  background: var(--chrome-hover);
+  border-color: var(--chrome-rule);
+}
+.cat-row__num {
+  color: var(--chrome-muted); font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px; width: 18px;
+}
+.cat-row__type {
+  color: var(--chrome-muted); font-size: 10px;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+.cat-row__id { flex: 1; }
+.cat-row__drag {
+  color: var(--chrome-muted); font-size: 14px; cursor: grab; user-select: none;
+}
+
+/* ========================================================= Preview */
+.portfolio {
+  background: #3C342E;
+  padding: 24px;
+  overflow: auto;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.loading {
+  color: var(--chrome-muted); font-family: var(--font-ui);
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+  padding-top: 40px;
+}
+
+/* ========================================================= Page canvas */
+/* A4 landscape = 297×210mm. On-screen we use mm units verbatim for fidelity. */
+.page {
+  --page-w: 297mm; --page-h: 210mm;
+  width: var(--page-w); height: var(--page-h);
+  background: var(--paper);
+  color: var(--ink);
+  position: relative;
+  overflow: hidden;
+  /* Shadow shows the paper floating over chrome. Removed for print. */
+  box-shadow: 0 2px 14px rgba(0,0,0,.35);
+  font-family: var(--font-body);
+}
+body[data-orientation="portrait"] .page {
+  --page-w: 210mm; --page-h: 297mm;
+}
+.page.is-selected { outline: 3px solid rgba(217, 176, 121, .4); outline-offset: -3px; }
+
+.page__body {
+  position: absolute;
+  top: 12mm; right: 14mm; bottom: 12mm; left: 14mm;
+}
+.page__footer {
+  position: absolute; left: 14mm; right: 14mm; bottom: 4mm;
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--font-ui);
+  font-size: 7pt; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted);
+  border-top: 1px solid var(--rule); padding-top: 2mm;
+}
+.page__footer::before { content: attr(data-page); }
+.page__footer::after  { content: attr(data-footer); }
+
+/* Section head used by most category components. */
+.section-head {
+  display: grid; grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: end; gap: 2mm 6mm;
+}
+.section-head__eyebrow {
+  grid-column: 1 / 2; grid-row: 1 / 2;
+  font-family: var(--font-ui);
+  font-size: 9pt; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted);
+}
+.section-head__title {
+  grid-column: 1 / -1; grid-row: 2 / 3;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 36pt; font-weight: 500; line-height: 1; letter-spacing: -.01em;
+}
+.section-head__title em {
+  font-style: italic; color: var(--accent); font-weight: 400;
+}
+.section-head__rule {
+  grid-column: 3 / 4; grid-row: 1 / 2;
+  width: 30mm; height: 1px; background: var(--rule);
+}
+
+/* ========================================================= Print rules */
+@page { size: A4 landscape; margin: 0; }
+body[data-orientation="portrait"] { }   /* setter reapplies the @page rule via JS */
+
+@media print {
+  html, body { background: #fff; }
+  .app { display: block; height: auto; }
+  .app__toolbar, .app__list, .app__editor,
+  .sidebar, .toolbar, .style-dock, .modal, .toast { display: none !important; }
+  .portfolio { padding: 0; background: #fff; }
+  .page {
+    box-shadow: none !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  .page:last-child { page-break-after: auto; }
+}

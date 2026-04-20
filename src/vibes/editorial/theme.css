@@ -1,0 +1,18 @@
+/* ============================================================================
+   EDITORIAL — legacy alias for Vogue. Kept only so old content.json saves that
+   reference `default_theme: "editorial"` still open. New vibes use the keyed
+   names directly. The palette mirrors Vogue Editorial.
+   ============================================================================ */
+body[data-vibe="editorial"] {
+  --vibe-name: "Editorial";
+  --bg:        #FAF7F2;
+  --ink:       #1A1A1A;
+  --muted:     #6B6055;
+  --rule:      #D9D0C3;
+  --accent:    #8B6F4B;
+  --paper:     #FAF7F2;
+
+  --font-display: 'Bodoni Moda', 'Cormorant Garamond', serif;
+  --font-body:    'EB Garamond', Georgia, serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

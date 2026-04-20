@@ -1,0 +1,21 @@
+/* ============================================================================
+   COMMERCIAL FRESH — Lifestyle, campaign, warm brand work. Cheer. Clean sans
+   for CTAs. Warm peach, cream, coral.
+   ============================================================================ */
+body[data-vibe="commercial-fresh"] {
+  --vibe-name: "Commercial Fresh";
+  --bg:        #FFF6EE;
+  --ink:       #2B2926;
+  --muted:     #7A6E63;
+  --rule:      #E5D8CB;
+  --accent:    #F06A4A;
+  --paper:     #FFF6EE;
+
+  --cf-peach:   #F7C9A8;
+  --cf-coral:   #F06A4A;
+  --cf-cream:   #FFF6EE;
+
+  --font-display: 'Inter', 'Archivo', sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-ui:      'Inter', system-ui, sans-serif;
+}

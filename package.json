@@ -1,0 +1,30 @@
+{
+  "name": "wife-cv-studio",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Lâm Thanh Tiệp — Portfolio Studio. Vite + React + TS. Vibe-based portfolio with per-vibe category layout adapters.",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n vite,server -c magenta,cyan \"vite\" \"node server.cjs\"",
+    "dev:vite": "vite",
+    "dev:server": "node server.cjs",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "serve": "node server.cjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

@@ -1,0 +1,33 @@
+.cover {
+  position: absolute; inset: 0;
+  display: grid; grid-template-columns: 5fr 6fr;
+  align-items: stretch;
+}
+.left {
+  padding: 18mm 14mm;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.frame {
+  font-family: var(--font-ui);
+  font-size: 10pt; letter-spacing: .24em; text-transform: uppercase;
+  color: var(--muted);
+  padding-bottom: 2mm; border-bottom: 1px solid var(--rule);
+}
+.name {
+  font-family: var(--font-display);
+  font-size: 58pt; font-weight: 500; line-height: .92; letter-spacing: -.015em;
+  margin-top: 6mm;
+}
+.roles {
+  display: flex; flex-direction: column; gap: 2mm;
+  font-family: var(--font-ui);
+  font-size: 10pt; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent);
+}
+.right { position: relative; overflow: hidden; }
+.img   { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.placeholder {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--rule), var(--muted));
+  opacity: .4;
+}
