@@ -36,7 +36,12 @@ interface StoreState {
   reorderCategory: (fromId: string, toId: string) => void;
 
   setVibeOverride: (vibe: VibeKey, varName: string, value: string) => void;
+  clearVibeOverride: (vibe: VibeKey, varName: string) => void;
   resetVibeOverrides: (vibe: VibeKey) => void;
+
+  setCustomFonts: (fonts: StoreState['customFonts']) => void;
+  addGoogleFont:  (family: string) => void;
+  removeGoogleFont: (family: string) => void;
 
   showToast: (msg: string, kind?: 'ok' | 'err') => void;
   hideToast: () => void;
@@ -59,7 +64,7 @@ export const useStore = create<StoreState>((set, get) => ({
 
   async load() {
     try {
-      const doc = await api.getContent();
+      const { doc, static: isStatic } = await api.getContent();
       const meta = doc.meta ?? {} as ContentDoc['meta'];
       const vibe = (VIBE_KEYS as readonly string[]).includes(meta.default_theme as string)
         ? (meta.default_theme as VibeKey)
@@ -71,17 +76,18 @@ export const useStore = create<StoreState>((set, get) => ({
         vibe,
         orientation: meta.default_orientation ?? 'landscape',
         vibeOverrides: meta.theme_overrides ?? {},
-        isStatic: false,
+        googleFonts: Array.isArray(meta.google_fonts) ? meta.google_fonts : [],
+        isStatic,
       });
     } catch (e) {
-      // Fall back to empty doc if server is unreachable (static hosting).
+      // Neither the Node API nor the baked /content.json was reachable.
       console.warn('Content load failed, entering static mode:', e);
       set({ isStatic: true, content: { meta: {} as ContentDoc['meta'], categories: [] } });
     }
   },
 
   async save() {
-    const { content, vibe, lang, orientation, vibeOverrides } = get();
+    const { content, vibe, lang, orientation, vibeOverrides, googleFonts } = get();
     if (!content) return;
     const out: ContentDoc = {
       ...content,
@@ -91,6 +97,7 @@ export const useStore = create<StoreState>((set, get) => ({
         default_theme: vibe,
         default_orientation: orientation,
         theme_overrides: vibeOverrides,
+        google_fonts: googleFonts,
       },
     };
     try {
@@ -157,10 +164,33 @@ export const useStore = create<StoreState>((set, get) => ({
     set({ vibeOverrides: ov });
   },
 
+  clearVibeOverride(vibe, varName) {
+    const ov = { ...get().vibeOverrides };
+    const forVibe = { ...(ov[vibe] ?? {}) };
+    delete forVibe[varName];
+    if (Object.keys(forVibe).length) ov[vibe] = forVibe;
+    else delete ov[vibe];
+    set({ vibeOverrides: ov });
+  },
+
   resetVibeOverrides(vibe) {
     const ov = { ...get().vibeOverrides };
     delete ov[vibe];
     set({ vibeOverrides: ov });
+  },
+
+  setCustomFonts(fonts) { set({ customFonts: fonts }); },
+
+  addGoogleFont(family) {
+    const fam = family.trim();
+    if (!fam) return;
+    const have = get().googleFonts;
+    if (have.some(f => f.toLowerCase() === fam.toLowerCase())) return;
+    set({ googleFonts: [...have, fam] });
+  },
+
+  removeGoogleFont(family) {
+    set({ googleFonts: get().googleFonts.filter(f => f !== family) });
   },
 
   showToast(msg, kind = 'ok') { set({ toast: { msg, kind } }); },

@@ -65,6 +65,23 @@ body.is-dock-open {
     "list    editor  preview dock";
 }
 
+/* Static deploy (no Node API): the left editor columns are hidden, preview
+   fills the viewport. Save button and dirty indicator are suppressed too. */
+body.is-static {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "toolbar"
+    "preview";
+}
+body.is-static.is-dock-open {
+  grid-template-columns: 1fr 340px;
+  grid-template-areas:
+    "toolbar toolbar"
+    "preview dock";
+}
+body.is-static .toolbar__btn--primary,
+body.is-static .toolbar__status { display: none; }
+
 /* React mounts into #root, and App wraps everything in .app. Neither may
    introduce its own layout box — the body IS the grid container, and the
    shell's toolbar / sidebars / preview must be direct grid items. So we
@@ -249,50 +266,47 @@ body.is-dock-open {
 
 /* ============================================================ SECTION LIST */
 .cat-list {
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
   gap: 2px;
-  padding: 0;
 }
-.cat-row {
+.cat-item {
   display: grid;
   grid-template-columns: 16px 1fr auto;
-  gap: 8px; align-items: center;
+  gap: 8px;
+  align-items: center;
   padding: 7px 10px;
   border-radius: 8px;
   cursor: pointer;
-  background: transparent;
   color: rgba(255,255,255,.65);
+  transition: background .12s ease, color .12s ease;
   border: 1px solid transparent;
   font-size: 12.5px;
-  text-align: left;
-  transition: background .12s ease, color .12s ease;
 }
-.cat-row:hover {
+.cat-item:hover {
   background: rgba(255,255,255,.05);
   color: #fff;
 }
-.cat-row.is-active {
+.cat-item.is-active {
   background: rgba(255,255,255,.1);
-  color: #fff;
   border-color: rgba(255,255,255,.18);
+  color: #fff;
 }
-.cat-row__drag {
+.cat-item.is-dragging { opacity: .4; }
+.cat-item__handle {
   color: rgba(255,255,255,.3);
-  cursor: grab; user-select: none;
+  cursor: grab;
+  user-select: none;
   font-size: 11px;
 }
-.cat-row__num {
-  display: none;              /* legacy used a handle icon, no numbering */
-}
-.cat-row__id {
+.cat-item__title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 600;
 }
-.cat-row__type {
+.cat-item__type {
   font-size: 9.5px;
-  color: rgba(255,255,255,.4);
+  color: rgba(255,255,255,.35);
   letter-spacing: .08em;
   text-transform: uppercase;
 }
@@ -386,6 +400,96 @@ body.is-dock-open {
   display: block;
   width: 12px; height: 18px;
   border: 1px solid rgba(0,0,0,.3);
+}
+
+/* ---- per-vibe typography overrides ---------------------------------- */
+.style-dock__section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.style-dock__section-head .style-dock__label { margin: 0; }
+
+.style-dock__font-row {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px 0;
+  border-top: 1px dashed rgba(255,255,255,.08);
+}
+.style-dock__font-row:first-of-type { border-top: 0; }
+.style-dock__font-label {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.style-dock__font-label strong {
+  font-size: 11px; letter-spacing: .06em; color: #f1ece2; font-weight: 600;
+}
+.style-dock__font-label em {
+  font-size: 10px; font-style: normal; color: rgba(255,255,255,.42);
+}
+.style-dock__select {
+  width: 100%;
+  background: rgba(255,255,255,.04);
+  color: #f1ece2;
+  border: 1px solid var(--chrome-rule);
+  padding: 6px 8px;
+  font: inherit; font-size: 12px;
+  border-radius: 2px;
+}
+.style-dock__select:focus { outline: 1px solid #d9b079; border-color: #d9b079; }
+
+.style-dock__sub {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--chrome-rule);
+}
+.style-dock__sublabel {
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+  color: rgba(255,255,255,.52);
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.style-dock__font-upload {
+  display: flex; gap: 6px; align-items: center;
+}
+.style-dock__input {
+  flex: 1;
+  background: rgba(255,255,255,.04);
+  color: #f1ece2;
+  border: 1px solid var(--chrome-rule);
+  padding: 6px 8px;
+  font: inherit; font-size: 12px;
+  border-radius: 2px;
+  min-width: 0;
+}
+.style-dock__input:focus { outline: 1px solid #d9b079; border-color: #d9b079; }
+
+.style-dock__chiplist {
+  list-style: none; padding: 0; margin: 8px 0 0;
+  display: flex; flex-wrap: wrap; gap: 4px;
+}
+.style-dock__chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 4px 3px 8px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--chrome-rule);
+  font-size: 11px;
+  color: #f1ece2;
+  max-width: 100%;
+}
+.style-dock__chip span {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 180px;
+}
+.style-dock__chip-x {
+  background: transparent; border: 0;
+  color: rgba(255,255,255,.55);
+  font: inherit; font-size: 14px; line-height: 1;
+  padding: 0 4px; cursor: pointer;
+}
+.style-dock__chip-x:hover { color: #e96a5a; }
+
+.style-dock__hint {
+  font-size: 10px; color: rgba(255,255,255,.38);
+  margin: 8px 0 0;
+  line-height: 1.45;
 }
 
 /* ============================================================== PREVIEW */
@@ -529,4 +633,26 @@ body[data-orientation="portrait"] {
     break-after: page;
   }
   .page:last-child { page-break-after: auto; break-after: auto; }
+}
+
+/* -----------------------------------------------------------------
+   Editor card header (ported from legacy .card__title + .dot). Used
+   inside the editor pane to render the type banner + ID field, so it
+   visually matches the legacy editor's first card. ---------------- */
+.card__title {
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.5);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.card__title .dot {
+  display: inline-block;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent, #d9b079);
+  vertical-align: middle;
 }

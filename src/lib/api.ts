@@ -1,4 +1,10 @@
-// Thin client for the Node server's /api/* endpoints.
+// Thin client for the server's /api/* endpoints, with a static-host fallback.
+//
+// When the app runs on a plain static host (e.g. Vercel) there is no Node
+// server behind /api/*, so GETs transparently fall through to the baked
+// artifacts copied into dist/ by scripts/copy-static.cjs. Writes still hit
+// /api/* — they'll fail in static mode, and the store surfaces that by
+// disabling the editor chrome.
 import type { ContentDoc } from '@/types/content';
 
 export interface ImageEntry { name: string; size: number; mtime: string }
@@ -13,8 +19,17 @@ async function jsonOrThrow<T>(r: Response): Promise<T> {
   return body ? (JSON.parse(body) as T) : ({} as T);
 }
 
-export async function getContent(): Promise<ContentDoc> {
-  return jsonOrThrow<ContentDoc>(await fetch('/api/content', { cache: 'no-store' }));
+// Tries /api/content first. If that 404s (e.g. on Vercel), falls back to
+// /content.json — a copy of the source of truth baked into dist/ at build
+// time. The store treats a successful fallback as "static mode".
+export async function getContent(): Promise<{ doc: ContentDoc; static: boolean }> {
+  try {
+    const doc = await jsonOrThrow<ContentDoc>(await fetch('/api/content', { cache: 'no-store' }));
+    return { doc, static: false };
+  } catch {
+    const doc = await jsonOrThrow<ContentDoc>(await fetch('/content.json', { cache: 'no-store' }));
+    return { doc, static: true };
+  }
 }
 
 export async function putContent(doc: ContentDoc): Promise<void> {

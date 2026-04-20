@@ -27,3 +27,56 @@
 .jsonArea {
   font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 11px;
 }
+
+/* ordered-list item header — matches the ⋮⋮ #n ↑ ↓ × layout the legacy
+   editor uses in .cat-item__head / .list-item__head. */
+.itemHead {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 10pt;
+  color: var(--chrome-muted);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.itemHandle {
+  color: rgba(255,255,255,.35);
+  cursor: grab;
+  user-select: none;
+  font-size: 11px;
+}
+.itemNum { font-weight: 600; letter-spacing: .18em; }
+.itemActions {
+  grid-column: 4;
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.iconBtn {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--chrome-rule);
+  color: var(--chrome-muted);
+  width: 24px; height: 24px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  padding: 0;
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+.iconBtn:hover:not(:disabled) {
+  background: var(--chrome-hover);
+  color: var(--chrome-fg);
+}
+.iconBtn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+.iconBtnDanger:hover:not(:disabled) {
+  border-color: #c0392b;
+  color: #e74c3c;
+}

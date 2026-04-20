@@ -15,7 +15,7 @@ export function Toolbar() {
   const save = useStore(s => s.save);
   const isDirty = useStore(selectIsDirty);
   const isStatic = useStore(s => s.isStatic);
-  const [dockOpen, setDockOpen] = useState(false);
+  const [dockOpen, setDockOpen] = useState(true);
 
   // Flip a class on <body> so the grid template adds a 4th column for the
   // dock. Matches the legacy shell: body owns the layout grid.

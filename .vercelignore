@@ -1,0 +1,24 @@
+# Files that shouldn't be uploaded to Vercel's build context.
+# (Vercel runs `npm run build` which produces dist/ — the rest is extras.)
+
+.git/
+.gitignore
+.vercel/
+
+# Local dev artefacts
+node_modules/
+dist/
+tsconfig.tsbuildinfo
+vite.config.ts.timestamp-*
+.DS_Store
+
+# Archived vanilla frontend + throwaway parity shots
+.legacy/
+screenshots/
+
+# Local-only Node dev server (not used on Vercel)
+server.cjs
+
+# Reference material — not needed at build time
+moodboard-10-vibes.pdf
+moodboard-philosophy.md

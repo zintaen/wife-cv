@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import { editorForType } from '@/editors';
+import type { Category } from '@/types/content';
+import formCss from '@/editors/forms.module.css';
 
 export function SidebarEditor() {
   const lang     = useStore(s => s.lang);
@@ -34,20 +36,32 @@ export function SidebarEditor() {
             {ui(lang, 'editor.empty')}
           </div>
         ) : (
-          <EditorFor cat={cat} />
+          <>
+            <div className={formCss.card} style={{ marginBottom: 12 }}>
+              <div className="card__title">
+                <span>
+                  <span className="dot" />
+                  <span style={{ marginLeft: 8 }}>{ui(lang, 'type.' + cat.type)}</span>
+                </span>
+              </div>
+              <div className={formCss.row}>
+                <div className={formCss.label}>{ui(lang, 'editor.id')}</div>
+                <input
+                  className={formCss.input}
+                  value={cat.id}
+                  readOnly
+                />
+              </div>
+            </div>
+            <EditorFor cat={cat} />
+          </>
         )}
       </div>
     </aside>
   );
 }
 
-function EditorFor({ cat }: { cat: NonNullable<ReturnType<typeof pickCat>> }) {
+function EditorFor({ cat }: { cat: Category }) {
   const Editor = editorForType(cat.type);
   return <Editor cat={cat as never} />;
-}
-
-// Type-only helper to keep EditorFor's prop type coherent without importing
-// Category<T> with a dynamic type parameter.
-function pickCat() {
-  return useStore.getState().content?.categories[0];
 }

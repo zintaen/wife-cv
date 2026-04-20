@@ -4,11 +4,11 @@ import { t } from '@/lib/translate';
 import type { CategoryComponent } from '../types';
 
 export const BaseCover: CategoryComponent<'cover'> = ({ data, lang }) => (
-  <Page type="cover">
+  <Page type="cover" className={css.pageCover}>
     <div className={css.cover}>
       <div className={css.left}>
         <div className={css.frame}>{t(data.portfolio_label, lang)}</div>
-        <div className={css.name}>{t(data.name, lang)}</div>
+        <div className={css.stageName}>{t(data.name, lang)}</div>
         <div className={css.roles}>
           {(data.roles ?? []).map((r, i) => (
             <span key={i}>{t(r, lang)}</span>

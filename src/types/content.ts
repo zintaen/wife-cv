@@ -21,6 +21,8 @@ export interface Meta {
   default_theme: VibeKey;         // retained key name for backward compat
   default_orientation: Orientation;
   theme_overrides: Partial<Record<VibeKey, Record<string, string>>>;
+  /** Google Fonts families the user has dynamically loaded; replayed on boot. */
+  google_fonts?: string[];
 }
 
 export type Orientation = 'landscape' | 'portrait';

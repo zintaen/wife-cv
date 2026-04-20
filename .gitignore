@@ -1,8 +1,8 @@
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Editor files
+# Editor
 .vscode/
 .idea/
 *.swp
@@ -14,7 +14,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Backup / temp files
+# Backups / temp
 *.bak
 *.test-backup
 *.tmp
@@ -23,11 +23,18 @@ yarn-error.log*
 # Local env
 .env
 .env.local
+.env.*.local
 
-# Build output
+# Vite / TS build output
 dist/
 tsconfig.tsbuildinfo
 vite.config.ts.timestamp-*
+
+# Parity screenshots (regenerated on demand)
+screenshots/
+
+# Vercel / hosting caches
+.vercel/
 
 # Archived vanilla frontend (kept locally for reference; not pushed)
 .legacy/

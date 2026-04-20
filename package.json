@@ -8,7 +8,7 @@
     "dev": "concurrently -k -n vite,server -c magenta,cyan \"vite\" \"node server.cjs\"",
     "dev:vite": "vite",
     "dev:server": "node server.cjs",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/copy-static.cjs",
     "preview": "vite preview",
     "serve": "node server.cjs",
     "typecheck": "tsc --noEmit"

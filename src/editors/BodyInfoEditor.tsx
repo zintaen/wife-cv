@@ -2,20 +2,22 @@ import css from './forms.module.css';
 import { MLInput, TextInput, ListItem, AddButton, moveItem } from './primitives';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
-import type { Category, TrainingProgram } from '@/types/content';
+import type { Category, InfoField } from '@/types/content';
 
-export function TrainingEditor({ cat }: { cat: Category<'training'> }) {
+const blankMLS = () => ({ vi: '', en: '', zh: '' });
+
+export function BodyInfoEditor({ cat }: { cat: Category<'body-info'> }) {
   const patch = useStore(s => s.patchCategory);
   const lang  = useStore(s => s.lang);
   const d = cat.data;
-  const progs = d.programs ?? [];
-  const imgs  = d.images ?? [];
+  const fields = d.fields ?? [];
+  const imgs   = d.images ?? [];
 
-  const setProg  = (i: number, next: TrainingProgram) => {
-    const arr = [...progs]; arr[i] = next; patch(cat.id, { programs: arr });
+  const setField  = (i: number, next: InfoField) => {
+    const arr = [...fields]; arr[i] = next; patch(cat.id, { fields: arr });
   };
-  const rmProg   = (i: number) => patch(cat.id, { programs: progs.filter((_, j) => j !== i) });
-  const moveProg = (i: number, d2: number) => patch(cat.id, { programs: moveItem(progs, i, i + d2) });
+  const rmField   = (i: number) => patch(cat.id, { fields: fields.filter((_, j) => j !== i) });
+  const moveField = (i: number, d2: number) => patch(cat.id, { fields: moveItem(fields, i, i + d2) });
 
   const rmImg   = (i: number) => patch(cat.id, { images: imgs.filter((_, j) => j !== i) });
   const moveImg = (i: number, d2: number) => patch(cat.id, { images: moveItem(imgs, i, i + d2) });
@@ -25,22 +27,22 @@ export function TrainingEditor({ cat }: { cat: Category<'training'> }) {
       <MLInput label={ui(lang, 'field.heading')}    value={d.heading}    onChange={v => patch(cat.id, { heading: v })} />
       <MLInput label={ui(lang, 'field.subheading')} value={d.subheading} onChange={v => patch(cat.id, { subheading: v })} />
 
-      <div className={css.label}>{ui(lang, 'card.programs')}</div>
-      {progs.map((p, i) => (
+      <div className={css.label}>{ui(lang, 'card.fields')}</div>
+      {fields.map((f, i) => (
         <ListItem
           key={i}
           index={i}
-          total={progs.length}
-          onUp={() => moveProg(i, -1)}
-          onDown={() => moveProg(i, +1)}
-          onRemove={() => rmProg(i)}
+          total={fields.length}
+          onUp={() => moveField(i, -1)}
+          onDown={() => moveField(i, +1)}
+          onRemove={() => rmField(i)}
         >
-          <MLInput label={ui(lang, 'field.title')}       value={p.title}       onChange={v => setProg(i, { ...p, title: v })} />
-          <MLInput label={ui(lang, 'field.institution')} value={p.institution} onChange={v => setProg(i, { ...p, institution: v })} />
+          <MLInput label={ui(lang, 'field.label')} value={f.label} onChange={v => setField(i, { ...f, label: v })} />
+          <MLInput label={ui(lang, 'field.value')} value={f.value} onChange={v => setField(i, { ...f, value: v })} />
         </ListItem>
       ))}
       <AddButton onClick={() => patch(cat.id, {
-        programs: [...progs, { title: { vi: '', en: '', zh: '' }, institution: { vi: '', en: '', zh: '' } }],
+        fields: [...fields, { label: blankMLS(), value: blankMLS() }],
       })} />
 
       <div className={css.label}>{ui(lang, 'card.photos')}</div>
