@@ -26,6 +26,7 @@ const url = require('url');
 
 const ROOT = __dirname;                              // portfolio/
 const DIST = path.join(ROOT, 'dist');                // built client (vite build output)
+const LEGACY = path.join(ROOT, '.legacy');           // archived vanilla UI (kept as visual reference)
 const CONTENT = path.join(ROOT, 'content.json');
 const IMAGES = path.join(ROOT, 'images');
 const FONTS = path.join(ROOT, 'fonts');
@@ -313,6 +314,13 @@ async function serveStatic(req, res, pathname) {
   let base = DIST;
   if (rel.startsWith('images/') || rel === 'images') base = ROOT;
   else if (rel.startsWith('fonts/') || rel === 'fonts') base = ROOT;
+  // /legacy/** serves the archived vanilla UI. The legacy script expects
+  // /api/content, /images/*, /fonts/* to work at the root — those are
+  // handled above and remain available while the legacy page is open.
+  else if (rel === 'legacy' || rel.startsWith('legacy/')) {
+    base = LEGACY;
+    rel = rel.replace(/^legacy\/?/, '');
+  }
 
   if (rel === '' || rel.endsWith('/')) rel += 'index.html';
   const abs = safeResolve(base, rel);

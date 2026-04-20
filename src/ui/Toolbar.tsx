@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore, selectIsDirty } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import type { Lang } from '@/types/content';
@@ -17,7 +17,14 @@ export function Toolbar() {
   const isStatic = useStore(s => s.isStatic);
   const [dockOpen, setDockOpen] = useState(false);
 
-  const statusCls = isStatic ? 'is-static' : isDirty ? 'is-dirty' : 'is-saved';
+  // Flip a class on <body> so the grid template adds a 4th column for the
+  // dock. Matches the legacy shell: body owns the layout grid.
+  useEffect(() => {
+    document.body.classList.toggle('is-dock-open', dockOpen);
+    return () => { document.body.classList.remove('is-dock-open'); };
+  }, [dockOpen]);
+
+  const statusCls = isStatic ? 'is-err' : isDirty ? 'is-dirty' : 'is-saved';
   const statusMsg = isStatic
     ? ui(lang, 'status.static')
     : isDirty ? ui(lang, 'status.dirty') : ui(lang, 'status.saved');
@@ -106,9 +113,13 @@ export function Toolbar() {
           </svg>
         </button>
 
-        <div className={'toolbar__status ' + statusCls} title={ui(lang, 'status.tooltip')}>
-          {statusMsg}
-        </div>
+        <div
+          className={'toolbar__status ' + statusCls}
+          role="status"
+          aria-label={statusMsg}
+          title={statusMsg}
+        />
+
       </header>
 
       {dockOpen ? <StyleDock onClose={() => setDockOpen(false)} /> : null}

@@ -1,229 +1,485 @@
 /* ============================================================================
-   Base frame — shared by all vibes. Each vibe's theme.css sets palette +
-   typeface vars on <body>; this file uses them. Keep decorative layout OUT
-   of here — that lives in per-component CSS modules.
+   Base frame — studio chrome + live A4 preview. Shared by all vibes.
+
+   Layout matches the legacy vanilla shell verbatim: body IS the grid, sidebars
+   are sticky under a 52px top toolbar, the preview column flows pages
+   vertically, and body itself scrolls. When body.is-dock-open is set, a 4th
+   column opens on the right for the Style Dock without disturbing the toolbar.
+
+   Per-vibe `theme.css` sets palette + typeface vars on body[data-vibe=…]; this
+   file consumes them via var() with sensible fallbacks.
    ============================================================================ */
 
 /* Google Fonts — every typeface any vibe might use, loaded once. */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Cinzel:wght@400;500;600;700;800&family=Allura&family=Archivo:wght@400;500;600;700;800&family=Archivo+Black&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Rozha+One&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Cinzel:wght@400;500;600;700;800&family=Allura&family=Archivo:wght@400;500;600;700;800&family=Archivo+Black&family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Rozha+One&family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap');
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 
 html, body {
   margin: 0;
   padding: 0;
-  height: 100%;
-  font-family: var(--font-body);
-  color: var(--ink);
-  background: #2A2520;   /* studio chrome gets a dark frame; paper sits on top */
+  background: var(--app-bg, #efece6);
+  font-family: var(--font-body, 'Be Vietnam Pro', 'Inter', system-ui, sans-serif);
+  color: var(--ink, #1f1b16);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit; }
 
 :root {
-  /* Studio chrome (not per-vibe) */
-  --chrome-bg:     #1A1714;
-  --chrome-fg:     #F5EFE4;
-  --chrome-muted:  #9A8B7A;
-  --chrome-rule:   #2E2824;
-  --chrome-hover:  #2C2624;
+  /* Studio chrome — dark frame that wraps the paper preview. */
+  --chrome-bg:     #13100c;
+  --chrome-fg:     #f5efe6;
+  --chrome-muted:  rgba(255,255,255,.55);
+  --chrome-rule:   rgba(255,255,255,.08);
+  --chrome-hover:  rgba(255,255,255,.08);
+
+  /* The signature gold → bronze gradient used for primary CTAs and accents. */
+  --gold-1: #d9b079;
+  --gold-2: #a87e45;
+  --ink-on-gold: #1b140a;
 }
 
-/* ========================================================= Layout grid */
-.app {
+/* ============================================================ LAYOUT GRID */
+/*
+  Rows   : 52px toolbar, then auto-height content (body scrolls).
+  Columns: sections list (260) · editor (360) · preview (1fr) · style-dock (340 when open).
+  Sticky sidebars keep studio chrome fixed while preview column scrolls the body.
+*/
+body {
   display: grid;
-  grid-template-rows:   48px 1fr;
   grid-template-columns: 260px 360px 1fr;
+  grid-template-rows: 52px 1fr;
   grid-template-areas:
-    "toolbar toolbar   toolbar"
-    "list    editor    preview";
-  height: 100vh;
-  background: var(--chrome-bg);
-  color: var(--chrome-fg);
+    "toolbar toolbar toolbar"
+    "list    editor  preview";
+  min-height: 100vh;
 }
+body.is-dock-open {
+  grid-template-columns: 260px 360px 1fr 340px;
+  grid-template-areas:
+    "toolbar toolbar toolbar toolbar"
+    "list    editor  preview dock";
+}
+
+/* React mounts into #root, and App wraps everything in .app. Neither may
+   introduce its own layout box — the body IS the grid container, and the
+   shell's toolbar / sidebars / preview must be direct grid items. So we
+   flatten both wrappers via display: contents. */
+#root, .app { display: contents; }
 .app__toolbar { grid-area: toolbar; }
 .app__list    { grid-area: list; }
 .app__editor  { grid-area: editor; }
 .app__preview { grid-area: preview; }
 
-/* ========================================================= Toolbar */
+/* =============================================================== TOOLBAR */
 .toolbar {
-  display: flex; align-items: center; gap: 12px;
-  padding: 0 14px;
+  grid-area: toolbar;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 52px;
   background: var(--chrome-bg);
-  border-bottom: 1px solid var(--chrome-rule);
   color: var(--chrome-fg);
+  border-bottom: 1px solid var(--chrome-rule);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.12);
 }
 .toolbar__brand {
-  width: 28px; height: 28px;
-  border: 1px solid var(--chrome-fg);
+  width: 34px; height: 34px;
+  border-radius: 9px;
   display: grid; place-items: center;
-  font-family: var(--font-display); font-weight: 600;
-  font-size: 12px; letter-spacing: .1em;
+  background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
+  color: var(--ink-on-gold);
+  font-weight: 700; font-size: 12px; letter-spacing: .04em;
+  flex-shrink: 0; cursor: default;
+  border: 0;
 }
 .toolbar__title {
-  display: flex; flex-direction: column; gap: 0;
-  font-family: var(--font-display); font-weight: 500; font-size: 13px;
-  line-height: 1.1;
+  display: flex; flex-direction: column; gap: 1px;
+  font-weight: 600; font-size: 13px; letter-spacing: .04em;
+  line-height: 1.1; color: var(--chrome-fg);
 }
 .toolbar__title small {
-  color: var(--chrome-muted);
-  font-family: var(--font-ui); font-size: 10px; letter-spacing: .1em;
-  text-transform: uppercase;
+  font-size: 10px; opacity: .55; font-weight: 500; letter-spacing: .04em;
+  color: var(--chrome-fg);
 }
 .toolbar__spacer { flex: 1; }
 
 .toolbar__btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  height: 28px; padding: 0 10px;
-  background: transparent; color: var(--chrome-fg);
+  position: relative;
+  height: 34px; min-width: 34px; padding: 0 12px;
+  border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  color: rgba(255,255,255,.78);
+  background: rgba(255,255,255,.04);
   border: 1px solid var(--chrome-rule);
-  font: inherit; font-size: 12px;
-  cursor: pointer;
+  font-size: 12px; font-weight: 500; letter-spacing: .02em;
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
+  flex-shrink: 0;
 }
-.toolbar__btn:hover { background: var(--chrome-hover); }
-.toolbar__btn--icon { width: 28px; padding: 0; justify-content: center; }
+.toolbar__btn:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border-color: rgba(255,255,255,.14);
+}
+.toolbar__btn.is-active {
+  background: rgba(255,255,255,.14);
+  color: #fff;
+  border-color: rgba(255,255,255,.22);
+}
+.toolbar__btn--icon { padding: 0 8px; }
 .toolbar__btn--primary {
-  background: var(--chrome-fg); color: var(--chrome-bg); font-weight: 600;
+  color: var(--ink-on-gold);
+  background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(168,126,69,.22);
 }
-.toolbar__btn--primary:hover { opacity: .9; }
-.toolbar__btn.is-active { background: var(--chrome-hover); }
+.toolbar__btn--primary:hover {
+  filter: brightness(1.06);
+  background: linear-gradient(135deg, #e2b97d, #b88c50);
+}
+.toolbar__btn:disabled { opacity: .4; cursor: not-allowed; filter: none; }
 
+/* Always-visible segmented language switch. */
 .lang-seg {
-  display: inline-flex;
-  border: 1px solid var(--chrome-rule); border-radius: 2px; overflow: hidden;
+  display: inline-flex; align-items: center;
+  background: rgba(0,0,0,.3);
+  border: 1px solid var(--chrome-rule);
+  border-radius: 8px;
+  padding: 2px;
+  height: 34px;
+  flex-shrink: 0;
 }
 .lang-seg__btn {
-  background: transparent; color: var(--chrome-muted); border: 0;
-  padding: 0 10px; height: 28px; font: inherit; font-size: 11px;
-  letter-spacing: .1em; cursor: pointer;
+  min-width: 42px; padding: 0 10px; height: 28px;
+  border-radius: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  color: rgba(255,255,255,.65);
+  display: grid; place-items: center;
+  transition: all .12s ease;
+  background: transparent;
+  border: 0;
 }
-.lang-seg__btn:not(:last-child) { border-right: 1px solid var(--chrome-rule); }
-.lang-seg__btn.is-active { background: var(--chrome-fg); color: var(--chrome-bg); font-weight: 600; }
+.lang-seg__btn:hover { color: #fff; background: rgba(255,255,255,.06); }
+.lang-seg__btn.is-active {
+  background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
+  color: var(--ink-on-gold);
+}
 
+/* Status dot — colored circle, not text. Tooltip carries detail. */
 .toolbar__status {
-  font-family: var(--font-ui); font-size: 11px; color: var(--chrome-muted);
-  padding-left: 8px; border-left: 1px solid var(--chrome-rule);
-  height: 28px; display: inline-flex; align-items: center;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.22);
+  transition: background .15s ease, box-shadow .15s ease;
+  margin: 0 6px; flex-shrink: 0;
 }
-.toolbar__status.is-dirty  { color: #E8A76A; }
-.toolbar__status.is-saved  { color: #8BC58B; }
+.toolbar__status.is-dirty { background: #ffb74d; box-shadow: 0 0 8px rgba(255,183,77,.6); }
+.toolbar__status.is-saved { background: #7ee3a8; box-shadow: 0 0 8px rgba(126,227,168,.6); }
+.toolbar__status.is-err   { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,.6); }
 
-/* ========================================================= Sidebars */
+/* =============================================================== SIDEBARS */
 .sidebar {
+  position: sticky;
+  top: 52px;
+  align-self: start;
+  height: calc(100vh - 52px);
   background: var(--chrome-bg);
-  border-right: 1px solid var(--chrome-rule);
+  color: var(--chrome-fg);
   display: flex; flex-direction: column;
   overflow: hidden;
+  z-index: 5;
+  border-right: 1px solid rgba(255,255,255,.06);
 }
+.app__list   { padding: 14px 12px; gap: 10px; }
+.app__editor { padding: 14px 14px 12px; gap: 12px; box-shadow: 2px 0 20px rgba(0,0,0,.08); }
+
 .sidebar__head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 14px;
+  gap: 10px;
+  padding-bottom: 10px;
   border-bottom: 1px solid var(--chrome-rule);
 }
 .sidebar__head h3 {
-  margin: 0; font-family: var(--font-ui);
-  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--chrome-muted); font-weight: 600;
+  margin: 0;
+  font-size: 10px; letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+  font-weight: 600;
 }
-.sidebar__body  { flex: 1; overflow: auto; }
+
+.sidebar__body {
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-top: 10px;
+}
+
 .sidebar__footer {
-  padding: 10px 14px;
+  margin-top: auto;
+  font-size: 10px; line-height: 1.5;
+  color: rgba(255,255,255,.38);
   border-top: 1px solid var(--chrome-rule);
-  color: var(--chrome-muted);
-  font-size: 10px; letter-spacing: .04em;
+  padding-top: 10px;
+}
+.sidebar__footer code {
+  background: rgba(255,255,255,.06);
+  padding: 1px 4px; border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
 }
 
+/* ============================================================= BUTTONS */
 .btn--xs {
-  font: inherit; font-size: 11px; padding: 4px 8px;
-  background: transparent; color: var(--chrome-fg);
-  border: 1px solid var(--chrome-rule); cursor: pointer;
+  font-size: 10.5px; padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.72);
+  font-weight: 500;
 }
-.btn--xs:hover { background: var(--chrome-hover); }
+.btn--xs:hover { background: rgba(255,255,255,.1); color: #fff; }
 
-/* ========================================================= Section list */
-.cat-list { padding: 8px 6px; display: flex; flex-direction: column; gap: 2px; }
-.cat-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 10px; cursor: pointer;
-  border: 1px solid transparent;
-  background: transparent; color: var(--chrome-fg);
-  text-align: left; font: inherit; font-size: 12px;
+/* ============================================================ SECTION LIST */
+.cat-list {
+  display: flex; flex-direction: column;
+  gap: 2px;
+  padding: 0;
 }
-.cat-row:hover { background: var(--chrome-hover); }
+.cat-row {
+  display: grid;
+  grid-template-columns: 16px 1fr auto;
+  gap: 8px; align-items: center;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: rgba(255,255,255,.65);
+  border: 1px solid transparent;
+  font-size: 12.5px;
+  text-align: left;
+  transition: background .12s ease, color .12s ease;
+}
+.cat-row:hover {
+  background: rgba(255,255,255,.05);
+  color: #fff;
+}
 .cat-row.is-active {
-  background: var(--chrome-hover);
-  border-color: var(--chrome-rule);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border-color: rgba(255,255,255,.18);
+}
+.cat-row__drag {
+  color: rgba(255,255,255,.3);
+  cursor: grab; user-select: none;
+  font-size: 11px;
 }
 .cat-row__num {
-  color: var(--chrome-muted); font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  font-size: 10px; width: 18px;
+  display: none;              /* legacy used a handle icon, no numbering */
+}
+.cat-row__id {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
 }
 .cat-row__type {
-  color: var(--chrome-muted); font-size: 10px;
-  letter-spacing: .08em; text-transform: uppercase;
-}
-.cat-row__id { flex: 1; }
-.cat-row__drag {
-  color: var(--chrome-muted); font-size: 14px; cursor: grab; user-select: none;
+  font-size: 9.5px;
+  color: rgba(255,255,255,.4);
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
-/* ========================================================= Preview */
-.portfolio {
-  background: #3C342E;
-  padding: 24px;
-  overflow: auto;
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
+/* =========================================================== STYLE DOCK */
+.style-dock {
+  grid-area: dock;
+  position: sticky;
+  top: 52px;
+  align-self: start;
+  height: calc(100vh - 52px);
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  border-left: 1px solid var(--chrome-rule);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  z-index: 5;
 }
+.style-dock__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--chrome-rule);
+}
+.style-dock__head h3 {
+  margin: 0;
+  font-size: 10px; letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+  font-weight: 600;
+}
+.style-dock__body {
+  flex: 1; min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.style-dock__section-h,
+.style-dock__label {
+  font-size: 10px; letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.5);
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+.style-dock__note {
+  font-size: 11px;
+  color: var(--chrome-muted, rgba(255,255,255,.55));
+  margin: 0;
+  line-height: 1.5;
+}
+.style-dock__vibes {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.vibe-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid var(--chrome-rule);
+  color: var(--chrome-fg);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  transition: background .12s ease, border-color .12s ease;
+}
+.vibe-chip:hover { background: rgba(255,255,255,.04); }
+.vibe-chip.is-active {
+  background: linear-gradient(135deg, rgba(217,176,121,.14), rgba(168,126,69,.10));
+  border-color: #d9b079;
+}
+.vibe-chip__text {
+  display: flex; flex-direction: column; flex: 1; gap: 3px; min-width: 0;
+}
+.vibe-chip__text strong {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: #f1ece2;
+}
+.vibe-chip__text span {
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vibe-chip__swatches {
+  display: flex; gap: 2px; flex-shrink: 0;
+}
+.vibe-chip__swatches span {
+  display: block;
+  width: 12px; height: 18px;
+  border: 1px solid rgba(0,0,0,.3);
+}
+
+/* ============================================================== PREVIEW */
+/* Paper cream background, a generous page gap, pages centered in the column. */
+.portfolio {
+  grid-area: preview;
+  padding: 32px clamp(16px, 3vw, 48px) 60px;
+  background: var(--app-bg, #efece6);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 22px;
+  /* No min-width:0 — we want the A4 page's intrinsic 1123px width to force
+     the preview column wider so body scrolls horizontally, matching legacy. */
+}
+
 .loading {
-  color: var(--chrome-muted); font-family: var(--font-ui);
+  color: rgba(0,0,0,.5);
+  font-family: var(--font-ui, 'Inter', sans-serif);
   font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
   padding-top: 40px;
 }
 
-/* ========================================================= Page canvas */
-/* A4 landscape = 297×210mm. On-screen we use mm units verbatim for fidelity. */
+/* ============================================================ PAGE CANVAS */
+/* A4 = 297×210mm landscape. Pages are real-mm so on-screen preview matches
+   the print output byte-for-byte. The outer frame has the gentle shadow; the
+   cover variant drops its padding so its image bleeds to the edge. */
+:root {
+  --page-w:   297mm;
+  --page-h:   210mm;
+  --page-pad: 16mm;
+}
+body[data-orientation="portrait"] {
+  --page-w:   210mm;
+  --page-h:   297mm;
+  --page-pad: 18mm;
+}
+
 .page {
-  --page-w: 297mm; --page-h: 210mm;
-  width: var(--page-w); height: var(--page-h);
-  background: var(--paper);
-  color: var(--ink);
   position: relative;
+  width: var(--page-w);
+  height: var(--page-h);
+  padding: var(--page-pad);
+  background: var(--paper, #ffffff);
+  color: var(--ink, #1f1b16);
+  flex: 0 0 auto;
+  display: flex; flex-direction: column;
   overflow: hidden;
-  /* Shadow shows the paper floating over chrome. Removed for print. */
-  box-shadow: 0 2px 14px rgba(0,0,0,.35);
+  box-shadow: 0 12px 36px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.06);
   font-family: var(--font-body);
 }
-body[data-orientation="portrait"] .page {
-  --page-w: 210mm; --page-h: 297mm;
+.page.is-selected {
+  outline: 3px solid rgba(217, 176, 121, .55);
+  outline-offset: -3px;
 }
-.page.is-selected { outline: 3px solid rgba(217, 176, 121, .4); outline-offset: -3px; }
+
+/* Cover and thank-you bleed their artwork to the paper edge. */
+.page--cover,
+.page--thankyou { padding: 0; }
 
 .page__body {
-  position: absolute;
-  top: 12mm; right: 14mm; bottom: 12mm; left: 14mm;
+  flex: 1; min-height: 0;
+  position: relative;         /* anchor for absolute inset:0 decoration layers */
+  display: flex; flex-direction: column;
 }
+
 .page__footer {
-  position: absolute; left: 14mm; right: 14mm; bottom: 4mm;
+  position: absolute;
+  left: var(--page-pad);
+  right: var(--page-pad);
+  bottom: 6mm;
   display: flex; justify-content: space-between; align-items: baseline;
-  font-family: var(--font-ui);
-  font-size: 7pt; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--muted);
-  border-top: 1px solid var(--rule); padding-top: 2mm;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  font-size: 9pt; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted, #8a7e6c);
 }
 .page__footer::before { content: attr(data-page); }
 .page__footer::after  { content: attr(data-footer); }
 
-/* Section head used by most category components. */
+/* Cover and thank-you suppress the page footer; hero art carries the paper. */
+.page--cover .page__footer,
+.page--thankyou .page__footer { display: none; }
+
+/* ============================================================ SECTION KIT */
 .section-head {
-  display: grid; grid-template-columns: auto 1fr auto;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   grid-template-rows: auto auto;
-  align-items: end; gap: 2mm 6mm;
+  align-items: end;
+  gap: 2mm 6mm;
 }
 .section-head__eyebrow {
   grid-column: 1 / 2; grid-row: 1 / 2;
-  font-family: var(--font-ui);
-  font-size: 9pt; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--muted);
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  font-size: 9pt; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--muted, #8a7e6c);
 }
 .section-head__title {
   grid-column: 1 / -1; grid-row: 2 / 3;
@@ -239,20 +495,38 @@ body[data-orientation="portrait"] .page {
   width: 30mm; height: 1px; background: var(--rule);
 }
 
-/* ========================================================= Print rules */
+/* ================================================================== TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--chrome-bg); color: var(--chrome-fg);
+  padding: 10px 16px; border-radius: 8px;
+  font-size: 12px; letter-spacing: .04em;
+  box-shadow: 0 10px 30px rgba(0,0,0,.3);
+  border: 1px solid var(--chrome-rule);
+  z-index: 200;
+}
+
+/* =============================================================== PRINT */
 @page { size: A4 landscape; margin: 0; }
-body[data-orientation="portrait"] { }   /* setter reapplies the @page rule via JS */
 
 @media print {
-  html, body { background: #fff; }
-  .app { display: block; height: auto; }
-  .app__toolbar, .app__list, .app__editor,
-  .sidebar, .toolbar, .style-dock, .modal, .toast { display: none !important; }
-  .portfolio { padding: 0; background: #fff; }
+  html, body {
+    background: #fff;
+    display: block;
+    min-height: 0;
+  }
+  .app, .toolbar, .sidebar, .style-dock, .toast,
+  .app__toolbar, .app__list, .app__editor { display: none !important; }
+  .portfolio {
+    padding: 0;
+    background: #fff;
+    gap: 0;
+    display: block;
+  }
   .page {
     box-shadow: none !important;
     page-break-after: always;
     break-after: page;
   }
-  .page:last-child { page-break-after: auto; }
+  .page:last-child { page-break-after: auto; break-after: auto; }
 }
