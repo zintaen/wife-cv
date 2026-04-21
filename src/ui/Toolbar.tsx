@@ -1,13 +1,20 @@
-import { useEffect, useState } from 'react';
 import { useStore, selectIsDirty } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import type { Lang } from '@/types/content';
-import { StyleDock } from './StyleDock';
 
 const LANGS: Lang[] = ['vi', 'en', 'zh'];
 const LANG_LABEL: Record<Lang, string> = { vi: 'VI', en: 'EN', zh: '中' };
 
-export function Toolbar() {
+// Global toolbar. The Theme button toggles a styleOpen flag owned by App —
+// when true, App renders <StyleDock> as the bottom section of the left panel.
+// Toolbar no longer mounts StyleDock itself; that used to be a 4th grid
+// column, which the new flex-split shell has eliminated.
+export function Toolbar({
+  styleOpen, onToggleStyle,
+}: {
+  styleOpen: boolean;
+  onToggleStyle: () => void;
+}) {
   const lang = useStore(s => s.lang);
   const setLang = useStore(s => s.setLang);
   const orientation = useStore(s => s.orientation);
@@ -15,14 +22,6 @@ export function Toolbar() {
   const save = useStore(s => s.save);
   const isDirty = useStore(selectIsDirty);
   const isStatic = useStore(s => s.isStatic);
-  const [dockOpen, setDockOpen] = useState(true);
-
-  // Flip a class on <body> so the grid template adds a 4th column for the
-  // dock. Matches the legacy shell: body owns the layout grid.
-  useEffect(() => {
-    document.body.classList.toggle('is-dock-open', dockOpen);
-    return () => { document.body.classList.remove('is-dock-open'); };
-  }, [dockOpen]);
 
   const statusCls = isStatic ? 'is-err' : isDirty ? 'is-dirty' : 'is-saved';
   const statusMsg = isStatic
@@ -30,8 +29,7 @@ export function Toolbar() {
     : isDirty ? ui(lang, 'status.dirty') : ui(lang, 'status.saved');
 
   return (
-    <>
-      <header className="toolbar app__toolbar" aria-label="Global controls">
+    <header className="toolbar app__toolbar" aria-label="Global controls">
         <div className="toolbar__brand" title={ui(lang, 'toolbar.brand')}>LT</div>
         <div className="toolbar__title">
           {ui(lang, 'toolbar.title')}
@@ -55,9 +53,9 @@ export function Toolbar() {
         </div>
 
         <button
-          className={'toolbar__btn ' + (dockOpen ? 'is-active' : '')}
-          onClick={() => setDockOpen(o => !o)}
-          aria-haspopup="true" aria-pressed={dockOpen}
+          className={'toolbar__btn ' + (styleOpen ? 'is-active' : '')}
+          onClick={onToggleStyle}
+          aria-haspopup="true" aria-pressed={styleOpen}
           title={ui(lang, 'toolbar.theme')}
         >
           <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -121,8 +119,5 @@ export function Toolbar() {
         />
 
       </header>
-
-      {dockOpen ? <StyleDock onClose={() => setDockOpen(false)} /> : null}
-    </>
   );
 }

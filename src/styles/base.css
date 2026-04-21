@@ -1,13 +1,23 @@
 /* ============================================================================
    Base frame — studio chrome + live A4 preview. Shared by all vibes.
 
-   Layout matches the legacy vanilla shell verbatim: body IS the grid, sidebars
-   are sticky under a 52px top toolbar, the preview column flows pages
-   vertically, and body itself scrolls. When body.is-dock-open is set, a 4th
-   column opens on the right for the Style Dock without disturbing the toolbar.
+   Layout model:
+     body (flex column, 100vh, no scroll)
+       └─ #root (flex:1, flex column)
+            └─ .app (flex:1, flex column)
+                 ├─ .toolbar          — 52px, flex: 0 0 auto
+                 └─ .shell            — flex: 1, flex row, its own scroll
+                      ├─ .panel--left   (width: leftPct%, flex column)
+                      │     ├─ .sidebar.app__list     (cap ~35%)
+                      │     ├─ .sidebar.app__editor   (flex: 1)   [editor mode]
+                      │     └─ .style-dock            (cap ~50%)  [when open]
+                      ├─ .splitter      (6px drag handle)
+                      └─ .panel--preview (flex: 1, scrolls both axes)
 
-   Per-vibe `theme.css` sets palette + typeface vars on body[data-vibe=…]; this
-   file consumes them via var() with sensible fallbacks.
+   Studio prefs live in localStorage: studio.leftPct (0–100), studio.styleOpen.
+   Dragging the splitter to either edge snaps the split to 0/100; the collapsed
+   side is removed from the flow via .is-hidden. Per-vibe `theme.css` still sets
+   palette + typeface vars on body[data-vibe=…]; this file consumes them.
    ============================================================================ */
 
 /* Google Fonts — every typeface any vibe might use, loaded once. */
@@ -43,67 +53,116 @@ button { font: inherit; cursor: pointer; border: 0; background: transparent; col
   --ink-on-gold: #1b140a;
 }
 
-/* ============================================================ LAYOUT GRID */
+/* ============================================================ LAYOUT SHELL */
 /*
-  Rows   : 52px toolbar, then auto-height content (body scrolls).
-  Columns: sections list (260) · editor (360) · preview (1fr) · style-dock (340 when open).
-  Sticky sidebars keep studio chrome fixed while preview column scrolls the body.
+  The body is a flex column that fills the viewport exactly; only the preview
+  column scrolls. The left panel is resizable via the Splitter component (see
+  src/ui/Splitter.tsx) — its inline style sets flex-basis from the persisted
+  studio.leftPct pref. Dragging the handle to either edge snaps to 0/100 and
+  the collapsed side is removed via .is-hidden, giving the other pane the
+  entire shell width — a critical escape hatch on narrow screens.
 */
-body {
-  display: grid;
-  grid-template-columns: 260px 360px 1fr;
-  grid-template-rows: 52px 1fr;
-  grid-template-areas:
-    "toolbar toolbar toolbar"
-    "list    editor  preview";
-  min-height: 100vh;
+html, body {
+  height: 100vh;
+  overflow: hidden;              /* only .panel--preview scrolls */
 }
-body.is-dock-open {
-  grid-template-columns: 260px 360px 1fr 340px;
-  grid-template-areas:
-    "toolbar toolbar toolbar toolbar"
-    "list    editor  preview dock";
+body {
+  display: flex;
+  flex-direction: column;
+}
+#root {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+}
+.app {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
 }
 
-/* Static deploy (no Node API): the editor column is hidden, but the left
-   sections list stays as a navigator — clicking a row scrolls the matching
-   .page into view. Save button and dirty indicator are suppressed too. */
-body.is-static {
-  grid-template-columns: 260px 1fr;
-  grid-template-areas:
-    "toolbar toolbar"
-    "list    preview";
+.shell {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: row;
+  overflow: hidden;
+  background: var(--chrome-bg);
 }
-body.is-static.is-dock-open {
-  grid-template-columns: 260px 1fr 340px;
-  grid-template-areas:
-    "toolbar toolbar toolbar"
-    "list    preview dock";
+
+/* Left panel stacks list → editor → style dock. Width comes from an inline
+   flex-basis percentage; the min-width:0 lets flex children shrink below
+   their intrinsic sizes so the editor form wraps rather than pushing the
+   preview off screen. */
+.panel--left {
+  flex: 0 0 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--chrome-bg);
+  color: var(--chrome-fg);
+  overflow: hidden;
+  border-right: 1px solid var(--chrome-rule);
 }
+.panel--left.is-hidden { display: none; }
+
+/* Preview pane: takes whatever the left panel leaves behind. Both axes scroll
+   here because an A4 page (297mm ≈ 1123px) is often wider than the pane. We
+   let .portfolio size to its intrinsic max-content so pages aren't squeezed
+   when the pane is narrow. */
+.panel--preview {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: auto;
+  background: var(--app-bg, #efece6);
+}
+.panel--preview.is-hidden { display: none; }
+
+/* Body flag for the editor-vs-static rendering split. Viewer mode hides the
+   save button + dirty indicator; the SidebarSections component trims the
+   add/drag/footer affordances conditionally. */
 body.is-static .toolbar__btn--primary,
 body.is-static .toolbar__status { display: none; }
-/* Viewer sidebar trims the editor affordances (add menu, drag handle,
-   footer copy) via conditional rendering in SidebarSections.tsx — the
-   cursor cue here makes it obvious rows are navigation. */
 body.is-static .cat-item { cursor: pointer; }
 
-/* React mounts into #root, and App wraps everything in .app. Neither may
-   introduce its own layout box — the body IS the grid container, and the
-   shell's toolbar / sidebars / preview must be direct grid items. So we
-   flatten both wrappers via display: contents. */
-#root, .app { display: contents; }
-.app__toolbar { grid-area: toolbar; }
-.app__list    { grid-area: list; }
-.app__editor  { grid-area: editor; }
-.app__preview { grid-area: preview; }
+/* ============================================================ SPLITTER */
+/* 6px cursor-resize handle with a soft gold grip in the middle. While
+   dragging we flip body.is-resizing so *every* element inherits the resize
+   cursor and ignores text selection — without this the cursor snaps back
+   any time it passes over a button or text input. */
+.splitter {
+  flex: 0 0 6px;
+  background: var(--chrome-bg);
+  position: relative;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  border-right: 1px solid var(--chrome-rule);
+}
+.splitter::before {
+  /* widen the hit zone without enlarging the visual lane */
+  content: '';
+  position: absolute;
+  inset: 0 -4px;
+}
+.splitter__grip {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px; height: 40px;
+  background: rgba(255,255,255,.22);
+  border-radius: 1px;
+  transition: background .12s ease;
+}
+.splitter:hover .splitter__grip,
+.splitter.is-dragging .splitter__grip { background: var(--gold-1); }
+
+body.is-resizing,
+body.is-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
 
 /* =============================================================== TOOLBAR */
 .toolbar {
-  grid-area: toolbar;
-  position: sticky;
-  top: 0;
+  flex: 0 0 52px;
   z-index: 20;
-  height: 52px;
   background: var(--chrome-bg);
   color: var(--chrome-fg);
   border-bottom: 1px solid var(--chrome-rule);
@@ -208,20 +267,39 @@ body.is-static .cat-item { cursor: pointer; }
 .toolbar__status.is-err   { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,.6); }
 
 /* =============================================================== SIDEBARS */
+/* The two sidebars + style dock are now flex items inside .panel--left. The
+   list is capped so it doesn't eat the editor; the editor grows to fill the
+   remainder; the style dock caps itself so it can't devour the editor when
+   open. Drop the legacy sticky/viewport-height rules — the shell already
+   handles scrolling, and fixed heights break the flex sibling math. */
 .sidebar {
-  position: sticky;
-  top: 52px;
-  align-self: start;
-  height: calc(100vh - 52px);
   background: var(--chrome-bg);
   color: var(--chrome-fg);
   display: flex; flex-direction: column;
+  min-height: 0;
   overflow: hidden;
-  z-index: 5;
-  border-right: 1px solid rgba(255,255,255,.06);
+  border-right: 0;
 }
-.app__list   { padding: 14px 12px; gap: 10px; }
-.app__editor { padding: 14px 14px 12px; gap: 12px; box-shadow: 2px 0 20px rgba(0,0,0,.08); }
+.panel--left > .sidebar.app__list {
+  flex: 0 1 auto;
+  max-height: 35%;
+  min-height: 120px;
+  padding: 14px 12px;
+  gap: 10px;
+}
+.panel--left > .sidebar.app__editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px 14px 12px;
+  gap: 12px;
+  border-top: 1px solid var(--chrome-rule);
+  box-shadow: none;
+}
+/* Static mode: no editor column, so the list gets the full top slot. */
+body.is-static .panel--left > .sidebar.app__list {
+  flex: 1 1 auto;
+  max-height: none;
+}
 
 .sidebar__head {
   display: flex; align-items: center; justify-content: space-between;
@@ -317,18 +395,25 @@ body.is-static .cat-item { cursor: pointer; }
 }
 
 /* =========================================================== STYLE DOCK */
+/* Lives at the bottom of .panel--left now, not a standalone grid column. It
+   caps itself at half the panel so it can't swallow the editor, and scrolls
+   its own body when the content overflows. Toggled via the toolbar Theme
+   button (styleOpen state in App.tsx). */
 .style-dock {
-  grid-area: dock;
-  position: sticky;
-  top: 52px;
-  align-self: start;
-  height: calc(100vh - 52px);
+  flex: 0 1 auto;
+  max-height: 50%;
+  min-height: 140px;
   background: var(--chrome-bg);
   color: var(--chrome-fg);
-  border-left: 1px solid var(--chrome-rule);
+  border-top: 1px solid var(--chrome-rule);
+  border-left: 0;
   display: flex; flex-direction: column;
   overflow: hidden;
-  z-index: 5;
+}
+/* Static mode — let the dock use a little more room when it's the only
+   configurable thing visible. */
+body.is-static .panel--left > .style-dock {
+  max-height: 65%;
 }
 .style-dock__head {
   display: flex; align-items: center; justify-content: space-between;
@@ -498,15 +583,16 @@ body.is-static .cat-item { cursor: pointer; }
 }
 
 /* ============================================================== PREVIEW */
-/* Paper cream background, a generous page gap, pages centered in the column. */
+/* Paper cream background, a generous page gap, pages centered in the column.
+   The portfolio sizes to max-content so the intrinsic page width (≈1123px)
+   is respected even when .panel--preview is narrower than a page — in that
+   case the preview pane scrolls horizontally rather than clipping the page. */
 .portfolio {
-  grid-area: preview;
   padding: 32px clamp(16px, 3vw, 48px) 60px;
   background: var(--app-bg, #efece6);
   display: flex; flex-direction: column; align-items: center;
   gap: 22px;
-  /* No min-width:0 — we want the A4 page's intrinsic 1123px width to force
-     the preview column wider so body scrolls horizontally, matching legacy. */
+  min-width: max-content;
 }
 
 .loading {
@@ -619,18 +705,20 @@ body[data-orientation="portrait"] {
 @page { size: A4 landscape; margin: 0; }
 
 @media print {
-  html, body {
+  html, body, #root, .app, .shell, .panel--preview {
     background: #fff;
-    display: block;
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
     min-height: 0;
   }
-  .app, .toolbar, .sidebar, .style-dock, .toast,
-  .app__toolbar, .app__list, .app__editor { display: none !important; }
+  .toolbar, .panel--left, .splitter, .toast { display: none !important; }
   .portfolio {
     padding: 0;
     background: #fff;
     gap: 0;
     display: block;
+    min-width: 0;
   }
   .page {
     box-shadow: none !important;
