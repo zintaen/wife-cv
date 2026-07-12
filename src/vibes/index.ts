@@ -7,20 +7,16 @@ import type { VibeKey, CategoryType } from '@/types/content';
 import type { CategoryComponent, CategoryComponents } from './types';
 import { baseComponents } from './base/components';
 
-// 10 vibes, one module each. Import order matters only for how CSS cascades,
-// but all vibes gate their rules under `body[data-vibe="..."]` selectors so
-// they don't step on each other.
-import editorial         from './editorial/vibe';
-import cinemaNoir        from './cinema-noir/vibe';
-import hongKongNeon      from './hong-kong-neon/vibe';
-import shanghaiDeco      from './shanghai-deco/vibe';
-import bollywoodMaximal  from './bollywood-maximal/vibe';
-import hanokPrestige     from './hanok-prestige/vibe';
-import japanesePhotobook from './japanese-photobook/vibe';
-import nouvelleVague     from './nouvelle-vague/vibe';
-import wesAnderson       from './wes-anderson/vibe';
-import vogueEditorial    from './vogue-editorial/vibe';
-import commercialFresh   from './commercial-fresh/vibe';
+// Active vibes — five others (locomotive-editorial, editorial, vogue-editorial,
+// hanok-prestige, nouvelle-vague) are retired and intentionally NOT imported,
+// so their CSS doesn't load and their bundles drop out of the build.
+import cinemaNoir          from './cinema-noir/vibe';
+import hongKongNeon        from './hong-kong-neon/vibe';
+import shanghaiDeco        from './shanghai-deco/vibe';
+import bollywoodMaximal    from './bollywood-maximal/vibe';
+import japanesePhotobook   from './japanese-photobook/vibe';
+import wesAnderson         from './wes-anderson/vibe';
+import commercialFresh     from './commercial-fresh/vibe';
 
 /**
  * A vibe is a named aesthetic preset. It owns its color/typography vars
@@ -37,30 +33,22 @@ export interface VibeDef {
 }
 
 export const VIBES: Record<VibeKey, VibeDef> = {
-  'editorial':          editorial,
-  'cinema-noir':        cinemaNoir,
-  'hong-kong-neon':     hongKongNeon,
-  'shanghai-deco':      shanghaiDeco,
-  'bollywood-maximal':  bollywoodMaximal,
-  'hanok-prestige':     hanokPrestige,
-  'japanese-photobook': japanesePhotobook,
-  'nouvelle-vague':     nouvelleVague,
-  'wes-anderson':       wesAnderson,
-  'vogue-editorial':    vogueEditorial,
-  'commercial-fresh':   commercialFresh,
+  'cinema-noir':          cinemaNoir,
+  'hong-kong-neon':       hongKongNeon,
+  'shanghai-deco':        shanghaiDeco,
+  'bollywood-maximal':    bollywoodMaximal,
+  'japanese-photobook':   japanesePhotobook,
+  'wes-anderson':         wesAnderson,
+  'commercial-fresh':     commercialFresh,
 };
 
-// Display order in the style dock. Mirrors the moodboard sequence.
+// Display order in the style dock. Cinema Noir leads as the default.
 export const VIBE_ORDER: VibeKey[] = [
-  'vogue-editorial',
-  'editorial',
   'cinema-noir',
   'hong-kong-neon',
   'shanghai-deco',
   'bollywood-maximal',
-  'hanok-prestige',
   'japanese-photobook',
-  'nouvelle-vague',
   'wes-anderson',
   'commercial-fresh',
 ];

@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import css from './forms.module.css';
 import type { Lang, MLStr } from '@/types/content';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
+import { uploadImage } from '@/lib/api';
+import { fileToDataUrl } from '@/lib/fonts';
 
 const LANGS: Lang[] = ['vi', 'en', 'zh'];
 
@@ -72,6 +74,92 @@ export function TextInput(props: {
         placeholder={props.placeholder}
       />
     </Field>
+  );
+}
+
+/**
+ * Image field: text box for a manual path + a file picker that uploads
+ * the chosen file via POST /api/images and writes the returned URL into
+ * the field. Falls back gracefully in static mode — the editor chrome
+ * is already hidden there, so this only ever mounts when the Node
+ * server is up. Shows a 36×36 thumbnail of the current value so you
+ * can see what's referenced without cross-checking the preview.
+ */
+export function ImageInput(props: {
+  label: string;
+  value: string;
+  onChange: (s: string) => void;
+  placeholder?: string;
+}) {
+  const lang = useLang();
+  const showToast = useStore(s => s.showToast);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const safe = file.name.replace(/[^A-Za-z0-9._-]/g, '-');
+      const url = await uploadImage(safe, dataUrl);
+      props.onChange(url);
+      showToast(ui(lang, 'field.image.uploaded'), 'ok');
+    } catch (err) {
+      showToast((err as Error).message, 'err');
+    } finally {
+      setBusy(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  }
+
+  // Thumbnails use the same path convention as <Portfolio>: values like
+  // "images/foo.jpg" are relative to the site root. Normalize to "/..."
+  // so the thumbnail resolves the same way regardless of the editor's
+  // current URL.
+  const src = props.value
+    ? (/^(https?:|data:|\/)/.test(props.value) ? props.value : '/' + props.value)
+    : '';
+
+  return (
+    <div className={css.row}>
+      <div className={css.label}>{props.label}</div>
+      <div className={css.imageRow}>
+        {src
+          ? <img className={css.imageThumb} src={src} alt="" />
+          : <span className={css.imageThumbPlaceholder} aria-hidden>□</span>}
+        <input
+          className={css.input}
+          value={props.value ?? ''}
+          onChange={e => props.onChange(e.target.value)}
+          placeholder={props.placeholder}
+        />
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          onChange={onPick}
+          style={{ display: 'none' }}
+        />
+        <button
+          className="btn--xs"
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={busy}
+          title={ui(lang, 'field.image.pick')}
+        >{busy ? ui(lang, 'field.image.uploading') : ui(lang, 'field.image.pick')}</button>
+        {props.value
+          ? <button
+              className="btn--xs"
+              type="button"
+              onClick={() => props.onChange('')}
+              title={ui(lang, 'field.image.clear')}
+              disabled={busy}
+            >×</button>
+          : null}
+      </div>
+    </div>
   );
 }
 

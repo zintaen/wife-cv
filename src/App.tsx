@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useStore, selectIsDirty } from '@/store/useStore';
 import { Toolbar } from '@/ui/Toolbar';
 import { SidebarSections } from '@/ui/SidebarSections';
 import { SidebarEditor } from '@/ui/SidebarEditor';
 import { StyleDock } from '@/ui/StyleDock';
 import { Splitter } from '@/ui/Splitter';
+import { StudioDrawer } from '@/ui/StudioDrawer';
 import { Portfolio } from '@/ui/Portfolio';
 import { Toast } from '@/ui/Toast';
 import { listFonts } from '@/lib/api';
@@ -48,6 +50,31 @@ export function App() {
   // these don't collide with any future persisted content keys.
   const [leftPct, setLeftPct]     = usePersisted('studio.leftPct', 40);
   const [styleOpen, setStyleOpen] = usePersisted('studio.styleOpen', true);
+
+  // Responsive — below 960 the preview takes the full shell and the sidebars
+  // collapse into a drawer. Below 768 the drawer becomes a bottom sheet with
+  // drag-to-dismiss. The splitter hides on narrow screens.
+  const [isNarrow, setIsNarrow] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 960px)').matches,
+  );
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
+  );
+  useEffect(() => {
+    const mqNarrow = window.matchMedia('(max-width: 960px)');
+    const mqMobile = window.matchMedia('(max-width: 767px)');
+    const onNarrow = () => setIsNarrow(mqNarrow.matches);
+    const onMobile = () => setIsMobile(mqMobile.matches);
+    mqNarrow.addEventListener('change', onNarrow);
+    mqMobile.addEventListener('change', onMobile);
+    return () => {
+      mqNarrow.removeEventListener('change', onNarrow);
+      mqMobile.removeEventListener('change', onMobile);
+    };
+  }, []);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  // Close the drawer when the viewport widens back out.
+  useEffect(() => { if (!isNarrow) setDrawerOpen(false); }, [isNarrow]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -98,26 +125,57 @@ export function App() {
       <Toolbar
         styleOpen={styleOpen}
         onToggleStyle={() => setStyleOpen(!styleOpen)}
+        isNarrow={isNarrow}
+        drawerOpen={drawerOpen}
+        onToggleDrawer={() => setDrawerOpen(!drawerOpen)}
       />
-      <div className="shell">
-        <aside
-          className={'panel panel--left' + (leftHidden ? ' is-hidden' : '')}
-          style={{ flexBasis: leftPct + '%' }}
-          aria-label="Studio controls"
-        >
-          <SidebarSections />
-          {isStatic ? null : <SidebarEditor />}
-          {styleOpen ? <StyleDock onClose={() => setStyleOpen(false)} /> : null}
-        </aside>
+      <div className={'shell' + (isNarrow ? ' shell--narrow' : '')}>
+        {/* Desktop/widescreen: inline flex aside pinned to the left. */}
+        {isNarrow ? null : (
+          <aside
+            className={
+              'panel panel--left'
+              + (leftHidden ? ' is-hidden' : '')
+            }
+            style={{ flexBasis: leftPct + '%' }}
+            aria-label="Studio controls"
+          >
+            <SidebarSections />
+            {isStatic ? null : <SidebarEditor />}
+            {styleOpen ? <StyleDock onClose={() => setStyleOpen(false)} /> : null}
+          </aside>
+        )}
 
-        <Splitter leftPct={leftPct} setLeftPct={setLeftPct} />
+        {isNarrow ? null : <Splitter leftPct={leftPct} setLeftPct={setLeftPct} />}
 
         <main
-          className={'panel panel--preview' + (previewHidden ? ' is-hidden' : '')}
+          className={
+            'panel panel--preview'
+            + (previewHidden && !isNarrow ? ' is-hidden' : '')
+          }
           aria-label="Preview"
         >
           <Portfolio />
         </main>
+
+        {/* Narrow viewports: framer-motion drawer (springs from the left on
+            tablet, bottom-sheet with drag-to-dismiss on phone). */}
+        {isNarrow ? (
+          <AnimatePresence>
+            {drawerOpen ? (
+              <StudioDrawer
+                key="drawer"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                isMobile={isMobile}
+              >
+                <SidebarSections />
+                {isStatic ? null : <SidebarEditor />}
+                {styleOpen ? <StyleDock onClose={() => setStyleOpen(false)} /> : null}
+              </StudioDrawer>
+            ) : null}
+          </AnimatePresence>
+        ) : null}
       </div>
       <Toast />
     </div>

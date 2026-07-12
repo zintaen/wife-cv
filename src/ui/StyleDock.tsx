@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import { VIBES, VIBE_ORDER } from '@/vibes';
@@ -9,9 +10,12 @@ import {
 } from '@/lib/fonts';
 import { listFonts, uploadFont, deleteFont } from '@/lib/api';
 
-// Right-docked style panel. Owns the 4th grid column (see base.css).
-// Vibe picker + per-vibe typography overrides. Colors remain a stub for now;
-// the font surface is a full port of the legacy controls so parity holds.
+// -----------------------------------------------------------------------------
+// StyleDock — vibe & typography controls.
+// Visual spine: editorial masthead, animated vibe chips (selected chip has a
+// gold layoutId bar that slides between rows), tactile font dropdowns, and a
+// font-sources block (upload + Google Fonts).
+// -----------------------------------------------------------------------------
 export function StyleDock({ onClose }: { onClose: () => void }) {
   const lang          = useStore(s => s.lang);
   const vibe          = useStore(s => s.vibe);
@@ -25,13 +29,11 @@ export function StyleDock({ onClose }: { onClose: () => void }) {
   const addGoogleFont = useStore(s => s.addGoogleFont);
   const removeGoogleFont = useStore(s => s.removeGoogleFont);
   const showToast     = useStore(s => s.showToast);
+  const reduced       = useReducedMotion();
 
   const activeOverrides = overrides[vibe] ?? {};
   const families = allKnownFontFamilies(customFonts, googleFonts);
 
-  // Which family is "currently selected" for a given --font-* var?
-  // If the override is a full stack like `"Inter", system-ui, sans-serif`,
-  // peel the head family back out so the dropdown can display it.
   function familyFromStack(stack: string | undefined): string {
     if (!stack) return '';
     const m = stack.trim().match(/^"([^"]+)"|^([A-Za-z0-9\- ]+)/);
@@ -39,10 +41,27 @@ export function StyleDock({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <aside className="style-dock" aria-label="Vibe & Typography">
+    <motion.aside
+      className="style-dock"
+      aria-label="Vibe & Typography"
+      initial={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16 }}
+      transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className="style-dock__head">
-        <h3>{ui(lang, 'style.title')}</h3>
-        <button className="btn--xs" onClick={onClose}>{ui(lang, 'style.close')}</button>
+        <div className="sidebar__head-eyebrow">
+          <span className="sidebar__head-num">03 /</span>
+          <span className="sidebar__head-label">{ui(lang, 'style.title')}</span>
+        </div>
+        <h3 className="sidebar__head-title">{ui(lang, 'style.title')}</h3>
+        <motion.button
+          className="btn--xs"
+          onClick={onClose}
+          whileTap={{ scale: 0.94 }}
+        >
+          {ui(lang, 'style.close')}
+        </motion.button>
       </div>
 
       <div className="style-dock__body">
@@ -54,21 +73,37 @@ export function StyleDock({ onClose }: { onClose: () => void }) {
               const v = VIBES[k];
               const active = vibe === k;
               return (
-                <button
+                <motion.button
                   key={k}
                   onClick={() => setVibe(k)}
                   className={'vibe-chip ' + (active ? 'is-active' : '')}
+                  whileHover={reduced ? undefined : { y: -1 }}
+                  whileTap={{ scale: 0.99 }}
+                  transition={{ type: 'spring', stiffness: 520, damping: 32 }}
                 >
+                  {active ? (
+                    <motion.span
+                      layoutId="vibe-chip-active-bar"
+                      className="vibe-chip__active-bar"
+                      aria-hidden
+                      transition={{ type: 'spring', stiffness: 520, damping: 34 }}
+                    />
+                  ) : null}
                   <div className="vibe-chip__text">
                     <strong>{v.label}</strong>
                     <span>{v.suited}</span>
                   </div>
                   <div className="vibe-chip__swatches">
                     {v.swatch.slice(0, 6).map((c, i) => (
-                      <span key={i} style={{ background: c }} />
+                      <motion.span
+                        key={i}
+                        style={{ background: c }}
+                        initial={false}
+                        animate={{ opacity: active ? 1 : 0.88 }}
+                      />
                     ))}
                   </div>
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -134,7 +169,7 @@ export function StyleDock({ onClose }: { onClose: () => void }) {
           </p>
         </section>
       </div>
-    </aside>
+    </motion.aside>
   );
 }
 
@@ -153,7 +188,6 @@ function FontSourcesPanel(props: {
   const [gfInput, setGfInput] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Keep the @font-face <style> tag in sync whenever the customFonts list moves.
   useEffect(() => { injectCustomFontFaces(props.customFonts); }, [props.customFonts]);
 
   async function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -164,7 +198,6 @@ function FontSourcesPanel(props: {
       const dataUrl = await fileToDataUrl(file);
       const safe = file.name.replace(/[^A-Za-z0-9._-]/g, '-');
       const entry = await uploadFont(safe, fam, dataUrl);
-      // Refresh server-backed list so we pick up any rewrites.
       const fresh = await listFonts();
       props.setCustomFonts(fresh);
       props.onToast(`Uploaded ${entry.family}`, 'ok');

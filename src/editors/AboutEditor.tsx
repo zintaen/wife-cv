@@ -1,5 +1,5 @@
 import css from './forms.module.css';
-import { MLInput, TextInput, ListItem, AddButton, moveItem } from './primitives';
+import { MLInput, ImageInput, ListItem, AddButton, moveItem } from './primitives';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import type { AboutSection, Category } from '@/types/content';
@@ -36,8 +36,8 @@ export function AboutEditor({ cat }: { cat: Category<'about'> }) {
         >
           <MLInput label={ui(lang, 'field.body')} multiline value={s.body}
                    onChange={v => setSection(i, { ...s, body: v })} />
-          <TextInput label={ui(lang, 'field.image')} value={s.image ?? ''}
-                     onChange={v => setSection(i, { ...s, image: v })} />
+          <ImageInput label={ui(lang, 'field.image')} value={s.image ?? ''}
+                      onChange={v => setSection(i, { ...s, image: v })} />
         </ListItem>
       ))}
       <AddButton onClick={() => patch(cat.id, {

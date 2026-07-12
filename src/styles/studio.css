@@ -1,0 +1,1507 @@
+/* ============================================================================
+   STUDIO CHROME — tactile editorial layer.
+
+   This file overhauls the studio surface (toolbar + sidebars + style dock +
+   splitter + drawer). It is loaded AFTER base.css so every rule below wins,
+   but we avoid touching the .page or vibe styles so the preview keeps its
+   cinematic identity.
+
+   Direction: Aristide Benoist tactile x editorial. Off-ivory paper surface,
+   ink typography, sharp 1px rules, mono index stamps, serif wordmark, gold
+   leaf for the active state. Motion is handled by framer-motion / gsap in
+   components; this file owns the visual language + reduced-motion fallbacks.
+   ========================================================================= */
+
+:root {
+  /* Paper palette — drives the new studio chrome. Not used inside .page. */
+  --studio-paper:       #f5f1e8;   /* off-ivory surface                   */
+  --studio-paper-deep:  #ebe4d5;   /* slightly sunk panels                */
+  --studio-paper-cream: #fbf6ec;   /* raised cards, ultra soft            */
+  --studio-ink:         #1b1612;   /* primary ink                         */
+  --studio-ink-soft:    #4a3f33;   /* secondary ink                       */
+  --studio-ink-muted:   #6e6257;   /* captions, type stamps               */
+  --studio-ink-ghost:   rgba(27, 22, 18, .36);
+
+  /* Hairlines — editorial rules printed on paper. */
+  --studio-rule:        rgba(27, 22, 18, .14);
+  --studio-rule-soft:   rgba(27, 22, 18, .08);
+  --studio-rule-strong: rgba(27, 22, 18, .32);
+
+  /* Accent — gold leaf, applied sparingly and only to active/primary. */
+  --studio-gold:        #b98b43;
+  --studio-gold-deep:   #7c5a24;
+  --studio-gold-glow:   rgba(185, 139, 67, .22);
+
+  /* Signal colors (dirty / saved / error) kept warm to match paper. */
+  --studio-sig-dirty:   #d4892a;
+  --studio-sig-saved:   #4d8c59;
+  --studio-sig-err:     #b3432b;
+
+  /* Typography tokens — editorial + engineered. */
+  --studio-font-display: 'Fraunces', 'EB Garamond', 'Cormorant Garamond', serif;
+  --studio-font-body:    'Be Vietnam Pro', 'Inter', system-ui, sans-serif;
+  --studio-font-mono:    'JetBrains Mono', 'Courier Prime', ui-monospace, monospace;
+
+  --studio-leading-snug:  1.15;
+  --studio-leading-body:  1.55;
+
+  --studio-tracking-caps: .22em;   /* eyebrows / labels                    */
+  --studio-tracking-tab:  .08em;   /* buttons / tab text                   */
+
+  /* Motion — durations + easings shared across components. */
+  --studio-dur-xs: 140ms;
+  --studio-dur-sm: 240ms;
+  --studio-dur-md: 420ms;
+  --studio-dur-lg: 680ms;
+  --studio-dur-xl: 1100ms;
+
+  --studio-ease-out:    cubic-bezier(.16, 1, .3, 1);      /* expo out */
+  --studio-ease-in-out: cubic-bezier(.76, 0, .24, 1);     /* power4   */
+  --studio-ease-spring: cubic-bezier(.34, 1.56, .64, 1);  /* bounce   */
+
+  /* Elevation — thin paper shadows, not card shadows. */
+  --studio-elev-rest:
+    0 1px 0 rgba(255, 255, 255, .6) inset,
+    0 1px 2px rgba(27, 22, 18, .05),
+    0 4px 14px -6px rgba(27, 22, 18, .10);
+  --studio-elev-raise:
+    0 1px 0 rgba(255, 255, 255, .8) inset,
+    0 6px 18px -8px rgba(27, 22, 18, .18),
+    0 16px 36px -14px rgba(27, 22, 18, .18);
+  --studio-elev-sunk:
+    inset 0 1px 2px rgba(27, 22, 18, .08),
+    inset 0 0 0 1px rgba(27, 22, 18, .04);
+
+  /* Grain — tactile paper noise applied via mask. Generated once, reused. */
+  --studio-grain-url:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><filter id='g'><feTurbulence baseFrequency='.82' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .45 0'/></filter><rect width='180' height='180' filter='url(%23g)' opacity='.38'/></svg>");
+}
+
+/* ============================================================ SHELL SURFACE */
+/* The shell + panels get the paper palette and a subtle grain. */
+.shell {
+  background:
+    radial-gradient(140% 120% at 0% 0%, var(--studio-paper-cream) 0%, var(--studio-paper) 60%, var(--studio-paper-deep) 120%),
+    var(--studio-paper);
+}
+.shell::before {
+  /* Grain overlay on the whole shell so every chrome surface inherits it. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--studio-grain-url);
+  background-size: 180px 180px;
+  opacity: .5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 0;
+}
+.shell { position: relative; }
+.shell > * { position: relative; z-index: 1; }
+
+.panel--left {
+  background: transparent;
+  color: var(--studio-ink);
+  border-right: 1px solid var(--studio-rule);
+  overflow: hidden;
+}
+.panel--preview {
+  background: var(--app-bg, #efece6);
+}
+
+/* ================================================================== TOOLBAR */
+/*
+   Editorial command bar: three horizontal bands separated by hairlines, serif
+   wordmark on the left, engine-turned index stamp in the middle, tactile chips
+   on the right. Height grows to 64px on desktop to breathe; compresses back to
+   54 on tablet and 50 on mobile.
+*/
+.toolbar.app__toolbar {
+  flex: 0 0 64px;
+  height: 64px;
+  z-index: 30;
+  padding: 0 22px;
+  gap: 16px;
+  background:
+    linear-gradient(180deg, var(--studio-paper-cream) 0%, var(--studio-paper) 100%);
+  color: var(--studio-ink);
+  border-bottom: 1px solid var(--studio-rule);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .4) inset,
+    0 12px 22px -18px rgba(27, 22, 18, .2);
+  position: relative;
+  overflow: hidden;
+}
+.toolbar.app__toolbar::after {
+  /* Top stitch — a 1px gold line that only shows on edit hover. */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--studio-rule) 22%,
+    var(--studio-gold) 50%,
+    var(--studio-rule) 78%,
+    transparent 100%);
+  opacity: 0;
+  transition: opacity var(--studio-dur-md) var(--studio-ease-out);
+}
+body:not(.is-static) .toolbar.app__toolbar:hover::after { opacity: .55; }
+
+/* Wordmark — serif initials with a gold-leaf swash on hover. */
+.toolbar__brand {
+  width: 44px; height: 44px;
+  border-radius: 0;
+  background: var(--studio-ink);
+  color: var(--studio-paper-cream);
+  font-family: var(--studio-font-display);
+  font-weight: 500;
+  font-style: italic;
+  font-size: 20px;
+  letter-spacing: .02em;
+  border: 1px solid var(--studio-ink);
+  box-shadow: var(--studio-elev-rest);
+  transition:
+    transform var(--studio-dur-md) var(--studio-ease-spring),
+    box-shadow var(--studio-dur-md) var(--studio-ease-out);
+  cursor: default;
+}
+.toolbar__brand::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 30%, var(--studio-gold-glow), transparent 65%);
+  opacity: 0;
+  transition: opacity var(--studio-dur-md) var(--studio-ease-out);
+  pointer-events: none;
+}
+.toolbar__brand { position: relative; overflow: hidden; }
+.toolbar:hover .toolbar__brand { transform: rotate(-2deg); }
+.toolbar:hover .toolbar__brand::after { opacity: 1; }
+
+/* Title block — editorial eyebrow + title with an index stamp underneath. */
+.toolbar__title {
+  display: flex; flex-direction: column; gap: 2px;
+  font-family: var(--studio-font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: var(--studio-leading-snug);
+  color: var(--studio-ink);
+}
+.toolbar__title-name {
+  font-family: var(--studio-font-display);
+  font-style: italic;
+  font-weight: 500;
+}
+.toolbar__title small,
+.toolbar__title-stamp {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+  color: var(--studio-ink-muted);
+  opacity: 1;
+}
+.toolbar__title-stamp-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--studio-gold);
+  box-shadow: 0 0 0 3px var(--studio-gold-glow);
+}
+
+.toolbar__spacer { flex: 1; }
+
+/* Toolbar buttons — tactile chips with a magnetic feel. */
+.toolbar__btn {
+  position: relative;
+  height: 38px; min-width: 38px;
+  padding: 0 14px;
+  border-radius: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  color: var(--studio-ink-soft);
+  background: var(--studio-paper-cream);
+  border: 1px solid var(--studio-rule);
+  font-family: var(--studio-font-mono);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: var(--studio-tracking-tab);
+  text-transform: uppercase;
+  box-shadow: var(--studio-elev-rest);
+  transition:
+    transform var(--studio-dur-sm) var(--studio-ease-spring),
+    color var(--studio-dur-sm) var(--studio-ease-out),
+    border-color var(--studio-dur-sm) var(--studio-ease-out),
+    background var(--studio-dur-sm) var(--studio-ease-out),
+    box-shadow var(--studio-dur-sm) var(--studio-ease-out);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.toolbar__btn::before {
+  /* Hover sheen — a diagonal gold wash that sweeps across. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg,
+    transparent 0%,
+    transparent 40%,
+    var(--studio-gold-glow) 50%,
+    transparent 60%,
+    transparent 100%);
+  transform: translate3d(-120%, 0, 0);
+  transition: transform var(--studio-dur-lg) var(--studio-ease-out);
+  pointer-events: none;
+}
+.toolbar__btn:hover {
+  color: var(--studio-ink);
+  border-color: var(--studio-ink);
+  background: var(--studio-paper);
+  box-shadow: var(--studio-elev-raise);
+  transform: translateY(-1px);
+}
+.toolbar__btn:hover::before { transform: translate3d(120%, 0, 0); }
+.toolbar__btn:active { transform: translateY(0); box-shadow: var(--studio-elev-rest); }
+.toolbar__btn.is-active {
+  color: var(--studio-paper-cream);
+  background: var(--studio-ink);
+  border-color: var(--studio-ink);
+}
+.toolbar__btn--icon { padding: 0 10px; }
+
+/* Primary — gold leaf. Ink on gold for strong contrast. */
+.toolbar__btn--primary {
+  color: var(--studio-paper-cream);
+  background: linear-gradient(135deg, var(--studio-gold) 0%, var(--studio-gold-deep) 100%);
+  border-color: var(--studio-gold-deep);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .4) inset,
+    0 6px 22px -10px rgba(124, 90, 36, .55),
+    0 12px 24px -14px rgba(124, 90, 36, .35);
+}
+.toolbar__btn--primary:hover {
+  color: var(--studio-paper-cream);
+  background: linear-gradient(135deg, #c7984c 0%, #8d6a2c 100%);
+  border-color: var(--studio-gold-deep);
+  filter: none;
+}
+.toolbar__btn--primary::before { display: none; }
+.toolbar__btn:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: grayscale(.4);
+}
+
+/* Segmented language picker — with animated indicator. */
+.lang-seg {
+  display: inline-flex; align-items: center;
+  position: relative;
+  height: 38px;
+  background: var(--studio-paper-deep);
+  border: 1px solid var(--studio-rule);
+  border-radius: 0;
+  padding: 3px;
+  box-shadow: var(--studio-elev-sunk);
+}
+.lang-seg__btn {
+  position: relative; z-index: 1;
+  min-width: 46px; padding: 0 12px; height: 30px;
+  border-radius: 0;
+  font-family: var(--studio-font-mono);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: var(--studio-tracking-caps);
+  color: var(--studio-ink-muted);
+  display: grid; place-items: center;
+  transition: color var(--studio-dur-sm) var(--studio-ease-out);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.lang-seg__btn:hover { color: var(--studio-ink); }
+.lang-seg__btn.is-active { color: var(--studio-paper-cream); background: transparent; }
+/* Framer-motion layoutId indicator — the ink pill that slides between chips. */
+.lang-seg__indicator {
+  position: absolute;
+  inset: 0;
+  background: var(--studio-ink);
+  z-index: -1;
+  box-shadow: 0 4px 12px -6px rgba(27, 22, 18, .4);
+}
+.lang-seg__label {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  line-height: 1;
+}
+
+/* Save-wrap — hosts the primary save button; framer-motion drives the dirty pulse. */
+.toolbar__save-wrap {
+  display: inline-flex;
+  align-items: center;
+  transform-origin: center;
+}
+.toolbar__save-wrap.is-dirty .toolbar__btn--primary {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .4) inset,
+    0 0 0 2px rgba(212, 137, 42, .20),
+    0 8px 28px -10px rgba(212, 137, 42, .65);
+}
+
+/* Status — editorial stamp: dot + mono label. Hosts its own ambient ring. */
+.toolbar__status {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 0 10px; height: 30px;
+  border: 1px solid var(--studio-rule);
+  background: var(--studio-paper-cream);
+  font-family: var(--studio-font-mono);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+  color: var(--studio-ink-muted);
+  flex-shrink: 0;
+  transition:
+    color var(--studio-dur-sm) var(--studio-ease-out),
+    border-color var(--studio-dur-sm) var(--studio-ease-out),
+    background var(--studio-dur-sm) var(--studio-ease-out);
+}
+.toolbar__status-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.toolbar__status-label { line-height: 1; }
+
+.toolbar__status.is-dirty {
+  color: var(--studio-sig-dirty);
+  border-color: rgba(212, 137, 42, .5);
+  background: linear-gradient(180deg, rgba(212, 137, 42, .08), rgba(212, 137, 42, .02));
+}
+.toolbar__status.is-saved {
+  color: var(--studio-sig-saved);
+  border-color: rgba(77, 140, 89, .4);
+  background: linear-gradient(180deg, rgba(77, 140, 89, .06), transparent);
+}
+.toolbar__status.is-err {
+  color: var(--studio-sig-err);
+  border-color: rgba(179, 67, 43, .4);
+  background: linear-gradient(180deg, rgba(179, 67, 43, .08), transparent);
+}
+
+@keyframes studio-ping {
+  0%   { opacity: .55; transform: scale(.8); }
+  70%  { opacity: 0;   transform: scale(1.7); }
+  100% { opacity: 0;   transform: scale(1.7); }
+}
+
+/* Drawer toggle — hamburger that morphs into an X. */
+.toolbar__drawer-toggle {
+  margin-right: 2px;
+  background: transparent;
+  border-color: var(--studio-ink);
+  color: var(--studio-ink);
+}
+.toolbar__drawer-toggle:hover { background: var(--studio-ink); color: var(--studio-paper-cream); }
+.toolbar__drawer-toggle.is-active {
+  background: var(--studio-ink);
+  color: var(--studio-paper-cream);
+  border-color: var(--studio-ink);
+}
+
+/* ================================================================ SIDEBARS */
+/* Paper chrome with tactile cards, editorial numbering, and hover peek. */
+
+.panel--left > .sidebar.app__list {
+  background: transparent;
+  padding: 18px 18px 14px;
+  gap: 12px;
+  max-height: 40%;
+}
+.panel--left > .sidebar.app__editor {
+  background: transparent;
+  padding: 18px 18px 14px;
+  gap: 14px;
+  border-top: 1px solid var(--studio-rule);
+  box-shadow: var(--studio-elev-sunk);
+}
+.sidebar {
+  color: var(--studio-ink);
+}
+
+/* Sidebar head — editorial masthead with eyebrow, title, and actions. */
+.sidebar__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: end;
+  column-gap: 10px;
+  row-gap: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--studio-rule);
+  position: relative;
+}
+.sidebar__head::after {
+  /* secondary hairline — creates an "engraved" feel */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -3px;
+  height: 1px;
+  background: var(--studio-rule-soft);
+}
+.sidebar__head-eyebrow {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  display: inline-flex; align-items: baseline; gap: 8px;
+  font-family: var(--studio-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+  color: var(--studio-ink-muted);
+}
+.sidebar__head-num { color: var(--studio-gold); }
+.sidebar__head-label { opacity: .8; }
+.sidebar__head-title {
+  grid-row: 2;
+  grid-column: 1;
+  font-family: var(--studio-font-display);
+  font-size: 20px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -.005em;
+  line-height: 1;
+  color: var(--studio-ink);
+  margin: 0;
+  text-transform: none;
+}
+/* Backwards-compatibility: the old .sidebar__head h3 was mono-label styled;
+   our new masthead moves that styling to the eyebrow. Keep the title element
+   styled as a serif heading regardless of tag. */
+.sidebar__head h3 {
+  font-family: var(--studio-font-display);
+  font-size: 20px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -.005em;
+  text-transform: none;
+  color: var(--studio-ink);
+  grid-row: 2;
+  grid-column: 1;
+  margin: 0;
+}
+/* Actions (add/delete) pinned to the right of the masthead. */
+.sidebar__head > .btn--xs,
+.sidebar__head > .sidebar__add,
+.sidebar__head .sidebar__delete {
+  grid-row: 2;
+  grid-column: 2;
+  justify-self: end;
+}
+
+.sidebar__body { margin-top: 14px; }
+.sidebar__body--editor { padding: 14px 2px 14px 0; }
+
+.sidebar__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--studio-ink-muted);
+  font-family: var(--studio-font-mono);
+  font-size: 9.5px;
+  letter-spacing: .05em;
+  padding-top: 10px;
+  border-top: 0;
+  position: relative;
+}
+.sidebar__footer-rule {
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, var(--studio-rule) 0%, transparent 85%);
+  margin-bottom: 2px;
+}
+.sidebar__footer code {
+  background: var(--studio-paper-deep);
+  color: var(--studio-ink);
+  border: 1px solid var(--studio-rule-soft);
+  padding: 1px 5px;
+  font-size: 9.5px;
+}
+
+/* btn--xs — tactile mini-button. */
+.btn--xs {
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: var(--studio-tracking-tab);
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border: 1px solid var(--studio-rule-strong);
+  background: var(--studio-paper-cream);
+  color: var(--studio-ink-soft);
+  border-radius: 0;
+  box-shadow: var(--studio-elev-rest);
+  transition: all var(--studio-dur-sm) var(--studio-ease-out);
+}
+.btn--xs:hover {
+  color: var(--studio-paper-cream);
+  background: var(--studio-ink);
+  border-color: var(--studio-ink);
+  box-shadow: var(--studio-elev-raise);
+}
+
+/* ----- Section list — editorial navigator with index stamps ------------- */
+.cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/*
+  Row shape: [index][handle][main][active-bar]
+  Using a grid with explicit columns so the index stamp stays perfectly
+  aligned even as titles wrap. Handle column collapses when absent.
+*/
+.cat-item {
+  display: grid;
+  grid-template-columns: 28px 16px 1fr;
+  column-gap: 10px;
+  align-items: center;
+  padding: 10px 14px 10px 4px;
+  border: 1px solid transparent;
+  border-top: 1px solid var(--studio-rule-soft);
+  border-radius: 0;
+  color: var(--studio-ink-soft);
+  font-family: var(--studio-font-body);
+  font-size: 13px;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  will-change: transform;
+}
+.cat-item:first-child { border-top: 0; }
+.cat-item.cat-item--static {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: transparent;
+  border-left: 0; border-right: 0;
+}
+
+/* Index stamp — hand-typed directly so sort-animations don't break numbering. */
+.cat-item__index {
+  grid-column: 1;
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: var(--studio-tracking-caps);
+  color: var(--studio-ink-ghost);
+  text-align: center;
+  transition: color var(--studio-dur-sm) var(--studio-ease-out);
+}
+
+.cat-item:hover {
+  background: var(--studio-paper-cream);
+  color: var(--studio-ink);
+}
+.cat-item:hover .cat-item__index { color: var(--studio-gold); }
+.cat-item.is-active {
+  background: var(--studio-ink);
+  color: var(--studio-paper-cream);
+  border-color: var(--studio-ink);
+}
+.cat-item.is-active .cat-item__index { color: var(--studio-gold); }
+.cat-item.is-active + .cat-item,
+.cat-item + .cat-item.is-active { border-top-color: transparent; }
+.cat-item.is-dragging { opacity: .42; }
+
+.cat-item__handle {
+  grid-column: 2;
+  color: var(--studio-ink-ghost);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  transition: color var(--studio-dur-sm) var(--studio-ease-out);
+}
+.cat-item__handle:active { cursor: grabbing; }
+.cat-item:hover .cat-item__handle { color: var(--studio-ink-muted); }
+.cat-item.is-active .cat-item__handle { color: rgba(255, 255, 255, .5); }
+
+.cat-item__main {
+  grid-column: 3;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.cat-item__title {
+  font-family: var(--studio-font-display);
+  font-size: 14.5px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0; flex: 1;
+}
+.cat-item__type {
+  font-family: var(--studio-font-mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+  color: var(--studio-ink-ghost);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cat-item:hover .cat-item__type,
+.cat-item.is-active .cat-item__type { color: inherit; opacity: .55; }
+
+/* Framer-motion layoutId active bar — a 2px gold rule that slides
+   between the selected rows. */
+.cat-item__active-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--studio-gold);
+  box-shadow: 0 0 12px -2px var(--studio-gold-glow);
+}
+
+/* Add-section popover — native <details> with an icon-led trigger. */
+.sidebar__add { position: relative; }
+.sidebar__add > summary,
+.sidebar__add-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+}
+.sidebar__add > summary::-webkit-details-marker { display: none; }
+.sidebar__add[open] > summary { background: var(--studio-ink); color: var(--studio-paper-cream); }
+.sidebar__add[open] > summary svg { transform: rotate(135deg); }
+.sidebar__add-trigger svg {
+  transition: transform var(--studio-dur-md) var(--studio-ease-spring);
+}
+.sidebar__add-menu {
+  position: absolute;
+  right: 0; top: calc(100% + 8px);
+  width: max-content;
+  min-width: 240px;
+  padding: 10px;
+  background: var(--studio-paper-cream);
+  border: 1px solid var(--studio-rule-strong);
+  box-shadow: var(--studio-elev-raise);
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  animation: studio-fade-up var(--studio-dur-md) var(--studio-ease-out);
+  z-index: 4;
+}
+.sidebar__add-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--studio-tracking-tab);
+  text-transform: uppercase;
+  padding: 7px 9px;
+  border: 1px solid var(--studio-rule-soft);
+  background: var(--studio-paper);
+  color: var(--studio-ink-soft);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--studio-dur-sm) var(--studio-ease-out);
+}
+.sidebar__add-menu-btn:hover {
+  background: var(--studio-ink);
+  color: var(--studio-paper-cream);
+  border-color: var(--studio-ink);
+}
+.sidebar__add-menu-btn-icon {
+  width: 6px; height: 6px;
+  border: 1px solid currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.sidebar__add-menu-btn:hover .sidebar__add-menu-btn-icon {
+  background: var(--studio-gold);
+  border-color: var(--studio-gold);
+}
+
+/* Delete button — destructive btn--xs variant with an icon. */
+.sidebar__delete {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.sidebar__delete:hover {
+  background: var(--studio-sig-err);
+  border-color: var(--studio-sig-err);
+  color: var(--studio-paper-cream);
+}
+
+/* Editor empty state — centered editorial placeholder. */
+.editor-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--studio-ink-muted);
+}
+.editor-empty__mark {
+  font-size: 22px;
+  color: var(--studio-gold);
+  margin-bottom: 12px;
+  opacity: .7;
+}
+.editor-empty__text {
+  font-family: var(--studio-font-body);
+  font-size: 13px;
+  line-height: var(--studio-leading-body);
+  margin: 0;
+}
+
+/* Editor identity card — tactile type tag at the top of the editor panel. */
+.editor-id-card {
+  margin-bottom: 14px;
+  border: 1px solid var(--studio-rule) !important;
+  background: linear-gradient(180deg, var(--studio-paper-cream), var(--studio-paper)) !important;
+  box-shadow: var(--studio-elev-rest);
+}
+.editor-id-card__type {
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+  color: var(--studio-ink);
+}
+
+@keyframes studio-fade-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* =============================================================== STYLE DOCK */
+.style-dock {
+  background: var(--studio-paper-cream);
+  color: var(--studio-ink);
+  border-top: 1px solid var(--studio-rule);
+  box-shadow: var(--studio-elev-sunk);
+  max-height: 55%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+/* Head is a masthead grid matching .sidebar__head so
+   .sidebar__head-eyebrow / .sidebar__head-title compose cleanly. */
+.style-dock__head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: end;
+  column-gap: 10px;
+  row-gap: 6px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--studio-rule);
+  background: var(--studio-paper-cream);
+  position: relative;
+}
+.style-dock__head::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -3px;
+  height: 1px;
+  background: var(--studio-rule-soft);
+}
+.style-dock__head > .btn--xs {
+  grid-row: 2;
+  grid-column: 2;
+  justify-self: end;
+}
+/* Back-compat: legacy h3 inside style-dock head. */
+.style-dock__head h3 {
+  font-family: var(--studio-font-display);
+  font-size: 20px;
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -.005em;
+  color: var(--studio-ink);
+  margin: 0;
+  grid-row: 2;
+  grid-column: 1;
+  text-transform: none;
+}
+.style-dock__body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* A semantic section block inside the dock. Each section gets a thin
+   dashed top rule except the first, and an optional flex header that
+   pairs the label with a reset/action button. */
+.style-dock__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+.style-dock__section + .style-dock__section {
+  padding-top: 22px;
+  border-top: 1px dashed var(--studio-rule-soft);
+}
+.style-dock__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.style-dock__section-h,
+.style-dock__label,
+.style-dock__sublabel {
+  color: var(--studio-ink-muted);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+  margin: 0;
+}
+.style-dock__note {
+  color: var(--studio-ink-muted);
+  font-family: var(--studio-font-mono);
+  font-size: 11px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Vibe chips — editorial cards with swatch bleed. The active indicator is
+   a shared-element (framer-motion layoutId) gold bar that slides between
+   chips, so ::before only carries the hover peek. */
+.style-dock__vibes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vibe-chip {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid var(--studio-rule);
+  background: var(--studio-paper);
+  color: var(--studio-ink);
+  text-align: left;
+  transition:
+    background var(--studio-dur-sm) var(--studio-ease-out),
+    border-color var(--studio-dur-sm) var(--studio-ease-out),
+    color var(--studio-dur-sm) var(--studio-ease-out),
+    box-shadow var(--studio-dur-md) var(--studio-ease-out);
+  box-shadow: var(--studio-elev-rest);
+  overflow: hidden;
+}
+.vibe-chip::before {
+  /* Hover peek only — active state uses the motion bar below. */
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--studio-ink);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--studio-dur-md) var(--studio-ease-out);
+  pointer-events: none;
+  z-index: 1;
+}
+.vibe-chip:hover {
+  background: var(--studio-paper-cream);
+  border-color: var(--studio-ink);
+  box-shadow: var(--studio-elev-raise);
+}
+.vibe-chip:hover::before { transform: scaleY(1); }
+.vibe-chip.is-active {
+  background: var(--studio-ink);
+  border-color: var(--studio-ink);
+  color: var(--studio-paper-cream);
+}
+.vibe-chip.is-active::before { transform: scaleY(0); }
+
+/* Shared-element gold bar — slides between chips via framer-motion layoutId. */
+.vibe-chip__active-bar {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--studio-gold);
+  box-shadow: 0 0 0 1px var(--studio-gold-deep) inset;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.vibe-chip__text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.vibe-chip__text strong {
+  font-family: var(--studio-font-display);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: inherit;
+  letter-spacing: 0;
+}
+.vibe-chip__text span {
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--studio-tracking-tab);
+  text-transform: uppercase;
+  color: var(--studio-ink-muted);
+}
+.vibe-chip.is-active .vibe-chip__text span { color: rgba(255, 255, 255, .6); }
+.vibe-chip__swatches {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--studio-rule-soft);
+  flex-shrink: 0;
+}
+.vibe-chip__swatches span {
+  width: 14px; height: 22px;
+  border: 0;
+  display: block;
+}
+.vibe-chip.is-active .vibe-chip__swatches { border-color: rgba(255, 255, 255, .18); }
+
+/* Font rows — richer with a hover peek of the glyph. */
+.style-dock__font-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-top: 1px dashed var(--studio-rule-soft);
+  padding: 12px 0;
+}
+.style-dock__font-row:first-of-type { border-top: 0; padding-top: 4px; }
+.style-dock__font-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.style-dock__font-label strong {
+  font-family: var(--studio-font-display);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--studio-ink);
+  letter-spacing: 0;
+}
+.style-dock__font-label em {
+  font-family: var(--studio-font-mono);
+  font-style: normal;
+  font-size: 10px;
+  letter-spacing: var(--studio-tracking-tab);
+  color: var(--studio-ink-muted);
+}
+.style-dock__select, .style-dock__input {
+  background: var(--studio-paper-cream);
+  color: var(--studio-ink);
+  border: 1px solid var(--studio-rule);
+  border-radius: 0;
+  padding: 8px 10px;
+  font-family: var(--studio-font-mono);
+  font-size: 12px;
+  transition: border-color var(--studio-dur-sm) var(--studio-ease-out), background var(--studio-dur-sm) var(--studio-ease-out);
+}
+.style-dock__select:hover, .style-dock__input:hover { border-color: var(--studio-ink); }
+.style-dock__select:focus, .style-dock__input:focus {
+  outline: 0;
+  border-color: var(--studio-gold-deep);
+  background: var(--studio-paper);
+  box-shadow: 0 0 0 3px var(--studio-gold-glow);
+}
+
+.style-dock__sub {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--studio-rule);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.style-dock__sub:first-of-type { margin-top: 6px; }
+.style-dock__font-upload {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+.style-dock__font-upload .style-dock__input { flex: 1 1 auto; min-width: 0; }
+.style-dock__chiplist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.style-dock__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--studio-paper);
+  border: 1px solid var(--studio-rule);
+  color: var(--studio-ink);
+  padding: 4px 4px 4px 10px;
+  font-family: var(--studio-font-mono);
+  font-size: 10.5px;
+  letter-spacing: var(--studio-tracking-tab);
+  text-transform: uppercase;
+}
+.style-dock__chip-x {
+  color: var(--studio-ink-muted);
+  background: transparent;
+  border: 0;
+  padding: 0 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: color var(--studio-dur-sm) var(--studio-ease-out);
+}
+.style-dock__chip-x:hover { color: var(--studio-sig-err); }
+.style-dock__hint {
+  color: var(--studio-ink-muted);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--studio-tracking-tab);
+  margin: 0;
+}
+
+/* ================================================================ SPLITTER */
+/* The splitter is a vertical rule between the workspace and preview. Its
+   grip is a motion.div whose scaleX/scaleY are driven by framer-motion, so
+   CSS here sets the RESTING geometry and colour only — do NOT scale the
+   grip in CSS (that would fight the motion transform). Flash states
+   (.is-detent / .is-edge) tint the grip briefly to confirm a snap. */
+.splitter {
+  flex: 0 0 10px;
+  background: transparent;
+  border-right: 1px solid var(--studio-rule);
+  cursor: col-resize;
+  position: relative;
+  outline: 0;
+}
+.splitter::before { inset: 0 -6px; }  /* widen hit zone */
+.splitter__grip {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  width: 3px; height: 52px;
+  background: var(--studio-rule-strong);
+  border-radius: 0;
+  transition:
+    background var(--studio-dur-sm) var(--studio-ease-out),
+    box-shadow var(--studio-dur-sm) var(--studio-ease-out);
+  will-change: transform;
+}
+.splitter:hover .splitter__grip,
+.splitter:focus-visible .splitter__grip {
+  background: var(--studio-ink);
+}
+.splitter.is-dragging .splitter__grip {
+  background: var(--studio-gold);
+  box-shadow: 0 0 0 1px var(--studio-gold-deep) inset,
+              0 0 14px 1px var(--studio-gold-glow);
+}
+/* Detent flash — soft amber pulse at the "home" position. */
+.splitter.is-detent .splitter__grip {
+  background: var(--studio-gold);
+  box-shadow: 0 0 0 1px var(--studio-gold-deep) inset,
+              0 0 20px 3px var(--studio-gold-glow);
+}
+/* Edge flash — sharper red-ink pulse when pinning to 0% / 100%. */
+.splitter.is-edge .splitter__grip {
+  background: var(--studio-sig-err, #b23a2a);
+  box-shadow: 0 0 0 1px rgba(178, 58, 42, .4) inset,
+              0 0 18px 2px rgba(178, 58, 42, .22);
+}
+
+/* Live percentage readout — appears on drag / hover. */
+.splitter__tooltip {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 12px);
+  transform: translateY(-50%);
+  font-family: var(--studio-font-mono);
+  font-size: 10px;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+  color: var(--studio-ink);
+  background: var(--studio-paper-cream);
+  border: 1px solid var(--studio-ink);
+  padding: 4px 8px;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition:
+    opacity var(--studio-dur-sm) var(--studio-ease-out),
+    border-color var(--studio-dur-sm) var(--studio-ease-out),
+    color var(--studio-dur-sm) var(--studio-ease-out);
+  z-index: 4;
+}
+.splitter:hover .splitter__tooltip,
+.splitter:focus-visible .splitter__tooltip { opacity: .85; }
+.splitter.is-dragging .splitter__tooltip { opacity: 1; }
+.splitter.is-detent .splitter__tooltip {
+  color: var(--studio-gold-deep);
+  border-color: var(--studio-gold-deep);
+}
+.splitter.is-edge .splitter__tooltip {
+  color: var(--studio-sig-err, #b23a2a);
+  border-color: var(--studio-sig-err, #b23a2a);
+}
+.splitter.is-dragging::before { background: transparent; }
+
+/* =================================================== SIDEBAR EDITOR FORMS */
+/* The form primitives in src/editors/*.tsx + forms.module.css were authored
+   against the legacy DARK studio chrome — they reference --chrome-bg/--chrome-fg
+   /--chrome-rule /--chrome-muted /--chrome-hover and --font-ui/--font-body.
+   The current studio is a paper-cream theme, so without an override the form
+   inputs render cream-on-cream (invisible text), the VI/EN/ZH lang chips
+   vanish, and the avatar tile sits on a transparent border with no chrome.
+   Re-map those variables inside the studio's left panel + drawer so the
+   editor surface matches the rest of the paper-and-ink studio palette
+   without having to touch any form-primitive code. */
+.panel--left .sidebar.app__editor,
+.shell--narrow .panel--left.panel--drawer .sidebar.app__editor,
+.panel--left .style-dock,
+.shell--narrow .panel--left.panel--drawer .style-dock {
+  --chrome-bg:     var(--studio-paper);
+  --chrome-fg:     var(--studio-ink);
+  --chrome-muted:  var(--studio-ink-muted);
+  --chrome-rule:   var(--studio-rule);
+  --chrome-hover:  var(--studio-paper-cream);
+  --font-ui:       var(--studio-font-mono);
+  --font-body:     var(--studio-font-body);
+}
+
+.sidebar.app__editor .sidebar__body { padding: 14px 4px 14px 0; }
+.panel--left .sidebar.app__editor .card__title {
+  color: var(--studio-ink-muted);
+  font-family: var(--studio-font-mono);
+  font-weight: 600;
+  letter-spacing: var(--studio-tracking-caps);
+}
+.panel--left .sidebar.app__editor .card__title .dot {
+  background: var(--studio-gold);
+}
+
+/* Form rows pick up the remapped vars above, but a few elements need a touch
+   more contrast to feel tactile rather than ghosted on paper. */
+.panel--left .sidebar.app__editor input[type="text"],
+.panel--left .sidebar.app__editor input:not([type]),
+.panel--left .sidebar.app__editor textarea {
+  background: var(--studio-paper-cream);
+  color: var(--studio-ink);
+  border: 1px solid var(--studio-rule);
+  font-family: var(--studio-font-body);
+  font-size: 13px;
+  padding: 7px 10px;
+  transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.panel--left .sidebar.app__editor input[type="text"]:focus,
+.panel--left .sidebar.app__editor input:not([type]):focus,
+.panel--left .sidebar.app__editor textarea:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--studio-ink);
+  box-shadow: 0 0 0 3px rgba(196, 156, 88, .18);
+}
+
+/* Language tabs (VI / EN / ZH) — paper-card pill row. */
+.panel--left .sidebar.app__editor [class*="langTabs"] {
+  border: 1px solid var(--studio-rule);
+  background: var(--studio-paper-cream);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.panel--left .sidebar.app__editor [class*="langTab"] {
+  color: var(--studio-ink-muted);
+  font-family: var(--studio-font-mono);
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: var(--studio-tracking-caps);
+  padding: 4px 9px;
+  transition: background .12s ease, color .12s ease;
+}
+.panel--left .sidebar.app__editor [class*="langTab"]:hover {
+  color: var(--studio-ink);
+  background: rgba(196, 156, 88, .08);
+}
+.panel--left .sidebar.app__editor [class*="langTab"][class*="active"] {
+  background: var(--studio-ink);
+  color: var(--studio-paper-cream);
+}
+
+/* Field label rows — small caps mono. */
+.panel--left .sidebar.app__editor [class*="forms-module"][class*="label"],
+.panel--left .sidebar.app__editor [class*="label_"] {
+  color: var(--studio-ink-muted);
+  font-family: var(--studio-font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: var(--studio-tracking-caps);
+  text-transform: uppercase;
+}
+
+/* Image picker thumbnail / placeholder — paper card with a faint shadow. */
+.panel--left .sidebar.app__editor [class*="imageThumb"] {
+  border: 1px solid var(--studio-rule);
+  background: var(--studio-paper-cream);
+  box-shadow: var(--studio-elev-rest);
+}
+.panel--left .sidebar.app__editor [class*="imageThumbPlaceholder"] {
+  color: var(--studio-ink-muted);
+}
+
+/* List-item cards (Roles, Fields, Programs, etc.) — give each row a tactile
+   paper-card surface so it doesn't merge into the panel background. */
+.panel--left .sidebar.app__editor [class*="card_"] {
+  background: var(--studio-paper-cream);
+  border: 1px solid var(--studio-rule);
+  box-shadow: var(--studio-elev-rest);
+  padding: 12px;
+  border-radius: 2px;
+}
+.panel--left .sidebar.app__editor [class*="itemHandle"] {
+  color: var(--studio-ink-muted);
+  opacity: .7;
+}
+.panel--left .sidebar.app__editor [class*="itemNum"] {
+  color: var(--studio-gold);
+}
+.panel--left .sidebar.app__editor [class*="iconBtn"] {
+  background: var(--studio-paper);
+  border: 1px solid var(--studio-rule);
+  color: var(--studio-ink-muted);
+  border-radius: 2px;
+}
+.panel--left .sidebar.app__editor [class*="iconBtn"]:hover:not(:disabled) {
+  background: var(--studio-paper-cream);
+  color: var(--studio-ink);
+  border-color: var(--studio-ink);
+}
+
+/* ========================================================= MOBILE DRAWER */
+/* Motion-managed: the drawer is rendered by <StudioDrawer> (framer-motion)
+   and its position/transform is animated by motion values. CSS here only
+   paints — do NOT set transform/translate on .panel--drawer here, that
+   would fight the motion controller. Dimensions + chrome only. */
+.shell--narrow .panel--left.panel--drawer {
+  position: fixed;
+  inset: 64px 0 0 0; /* align with toolbar height; mobile override below */
+  background: var(--studio-paper);
+  box-shadow: 24px 0 60px -12px rgba(27, 22, 18, .22);
+  border-right: 1px solid var(--studio-rule);
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+  min-height: 0;
+  touch-action: none; /* drag handle owns the gesture on phones */
+}
+.panel--drawer__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y; /* re-enable scroll inside the sheet body */
+  display: flex;
+  flex-direction: column;
+}
+.panel--drawer__handle {
+  flex: 0 0 auto;
+  height: 22px;
+  display: none; /* mobile only — overridden below */
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  padding: 8px 0;
+  background: var(--studio-paper);
+  border-bottom: 1px solid var(--studio-rule-soft);
+}
+.panel--drawer__handle:active { cursor: grabbing; }
+.panel--drawer__grip {
+  display: block;
+  width: 42px; height: 4px;
+  background: var(--studio-rule-strong);
+  border-radius: 2px;
+  transition: background var(--studio-dur-sm) var(--studio-ease-out);
+}
+.panel--drawer__handle:hover .panel--drawer__grip,
+.panel--drawer__handle:active .panel--drawer__grip { background: var(--studio-gold); }
+.shell__scrim {
+  position: fixed;
+  inset: 64px 0 0 0;
+  background: rgba(27, 22, 18, .32);
+  backdrop-filter: blur(4px) saturate(.85);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  z-index: 35;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ======================================================= RESPONSIVE BANDS */
+/* Tablet: 768–1279. Preview keeps priority; toolbar compresses. */
+@media (max-width: 1279px) and (min-width: 768px) {
+  .toolbar.app__toolbar { flex: 0 0 56px; height: 56px; padding: 0 16px; gap: 10px; }
+  .toolbar__brand { width: 38px; height: 38px; font-size: 17px; }
+  .toolbar__title { font-size: 15px; }
+  .toolbar__title small { display: none; }
+  .shell--narrow .panel--left.panel--drawer,
+  .shell__scrim { inset: 56px 0 0 0; }
+}
+/* Mobile: <768. Even tighter chrome, studio turns into a bottom sheet. */
+@media (max-width: 767px) {
+  .toolbar.app__toolbar { flex: 0 0 52px; height: 52px; padding: 0 12px; gap: 8px; }
+  .toolbar__brand { width: 36px; height: 36px; font-size: 15px; }
+  .toolbar__title { font-size: 14px; }
+  .toolbar__title small,
+  .toolbar__title-stamp { display: none; }
+  .toolbar__btn { height: 34px; padding: 0 10px; font-size: 10px; }
+  /* Hide text labels on mobile for non-icon toolbar buttons — keep the icons. */
+  .toolbar__btn > span:not(.lang-seg__label):not(.toolbar__status-label) { display: none; }
+  .toolbar__btn--primary > span { display: inline !important; }
+  .toolbar__btn--icon { min-width: 34px; }
+  .lang-seg { height: 34px; }
+  .lang-seg__btn { height: 26px; min-width: 38px; padding: 0 8px; font-size: 10px; }
+  .toolbar__status { height: 28px; padding: 0 8px; }
+  .toolbar__status-label { display: none; }
+
+  .shell__scrim { inset: 52px 0 0 0; }
+
+  /* On phones the drawer is a bottom sheet — full-width, 85vh tall, pinned
+     to the bottom. Motion handles the open/close slide (translateY). The
+     framer-motion drag handle shows here via `.panel--drawer__handle`. */
+  .shell--narrow .panel--left.panel--drawer {
+    width: 100vw; max-width: 100vw;
+    inset: auto 0 0 0;
+    height: 85vh;
+    border-right: 0;
+    border-top: 1px solid var(--studio-ink);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -24px 60px rgba(27, 22, 18, .32);
+  }
+  .shell--narrow .panel--drawer__handle { display: flex; }
+}
+
+/* ============================================================ PRINT PASS */
+/* Unified print stylesheet — portrait or landscape driven by
+   body[data-orientation]. Named @page rules let us switch page size per
+   body attribute (the `@page <selector>` shorthand is invalid CSS, so we
+   use CSS named pages via the `page:` property instead). */
+@page cv-landscape { size: A4 landscape; margin: 0; }
+@page cv-portrait  { size: A4 portrait;  margin: 0; }
+body                                   { page: cv-landscape; }
+body[data-orientation="portrait"]      { page: cv-portrait;  }
+body[data-orientation="landscape"]     { page: cv-landscape; }
+
+@media print {
+  body { background: #fff; }
+  .toolbar, .panel--left, .splitter, .toast, .shell::before,
+  .studio-progress, .studio-scroll-indicator { display: none !important; }
+  .shell, .app, .panel--preview {
+    background: #fff;
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .portfolio {
+    padding: 0; gap: 0;
+    display: block; min-width: 0;
+    background: #fff;
+  }
+  .page {
+    box-shadow: none !important;
+    outline: 0 !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  /* Belt-and-braces colour fidelity — Chrome / Safari both honour this. */
+  html, body, .page { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* ========================================================= REDUCED MOTION */
+@media (prefers-reduced-motion: reduce) {
+  .toolbar__btn::before,
+  .toolbar:hover .toolbar__brand,
+  .toolbar:hover .toolbar__brand::after { transition: none !important; animation: none !important; transform: none !important; }
+  .toolbar__status.is-dirty::after { animation: none; }
+  .cat-item, .vibe-chip { transition: none !important; }
+}
+
+/* ============================================================ FOCUS RINGS */
+/* One unified focus treatment: a 3px gold halo on any focused chrome element. */
+.toolbar__btn:focus-visible,
+.lang-seg__btn:focus-visible,
+.btn--xs:focus-visible,
+.vibe-chip:focus-visible,
+.cat-item:focus-visible,
+.style-dock__select:focus-visible,
+.style-dock__input:focus-visible {
+  outline: 0;
+  box-shadow:
+    0 0 0 2px var(--studio-paper-cream),
+    0 0 0 4px var(--studio-gold);
+  z-index: 2;
+}
+
+/* ========================================================== SCROLL BARS */
+.panel--left *::-webkit-scrollbar,
+.style-dock__body::-webkit-scrollbar,
+.sidebar__body::-webkit-scrollbar { width: 6px; height: 6px; }
+.panel--left *::-webkit-scrollbar-thumb,
+.style-dock__body::-webkit-scrollbar-thumb,
+.sidebar__body::-webkit-scrollbar-thumb {
+  background: var(--studio-rule-strong);
+  border-radius: 0;
+}
+.panel--left *::-webkit-scrollbar-thumb:hover { background: var(--studio-ink); }
+
+/* ============================================== FLAGSHIP SCROLL INDICATOR */
+/* A thin gold progress rail on the right edge of the preview, synced via
+   rAF in App.tsx. Only visible on desktop. */
+.studio-scroll-indicator {
+  position: fixed;
+  top: 64px;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+  z-index: 25;
+  pointer-events: none;
+}
+.studio-scroll-indicator__bar {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: var(--progress, 0%);
+  background: linear-gradient(180deg, var(--studio-gold) 0%, var(--studio-gold-deep) 100%);
+  transition: height 120ms linear;
+  box-shadow: 0 0 18px var(--studio-gold-glow);
+}
+@media (max-width: 1279px) { .studio-scroll-indicator { display: none; } }
+@media print               { .studio-scroll-indicator { display: none; } }

@@ -1,5 +1,5 @@
 import css from './forms.module.css';
-import { MLInput, TextInput, ListItem, AddButton, moveItem } from './primitives';
+import { MLInput, ImageInput, ListItem, AddButton, moveItem } from './primitives';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import type { Category, Play } from '@/types/content';
@@ -34,7 +34,7 @@ export function ExperiencesGalleryEditor({ cat }: { cat: Category<'experiences-g
         >
           <MLInput   label={ui(lang, 'field.playName')} value={p.name}       onChange={v => setPlay(i, { ...p, name: v })} />
           <MLInput   label={ui(lang, 'field.role')}     value={p.role}       onChange={v => setPlay(i, { ...p, role: v })} />
-          <TextInput label={ui(lang, 'field.image')}    value={p.image ?? ''} onChange={v => setPlay(i, { ...p, image: v })} />
+          <ImageInput label={ui(lang, 'field.image')}   value={p.image ?? ''} onChange={v => setPlay(i, { ...p, image: v })} />
         </ListItem>
       ))}
       <AddButton onClick={() => patch(cat.id, {

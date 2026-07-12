@@ -749,3 +749,77 @@ body[data-orientation="portrait"] {
   background: var(--accent, #d9b079);
   vertical-align: middle;
 }
+
+/* ============================================================================
+   RESPONSIVE SHELL — tablet / mobile.
+   Below 960px the sidebar collapses into a left-edge drawer. The preview
+   claims the full shell, the splitter is hidden, and a scrim appears behind
+   the drawer when it's open so tapping outside closes it. The drawer slides
+   in with a translate3d — works cleanly on both iOS and Android.
+   ========================================================================= */
+.shell--narrow .panel--preview {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.shell--narrow .panel--left.panel--drawer {
+  position: fixed;
+  z-index: 80;
+  inset: 52px 0 0 0;     /* sits under the 52px toolbar */
+  width: min(360px, 92vw);
+  max-width: 92vw;
+  transform: translate3d(-105%, 0, 0);
+  transition: transform .42s cubic-bezier(.66, 0, .15, 1);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .28);
+  border-right: 1px solid var(--chrome-rule);
+}
+.shell--narrow .panel--left.panel--drawer.is-open {
+  transform: translate3d(0, 0, 0);
+}
+.shell__scrim {
+  position: fixed;
+  inset: 52px 0 0 0;
+  z-index: 70;
+  background: rgba(6, 4, 2, .52);
+  backdrop-filter: blur(2px) saturate(.9);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  animation: scrim-fade .24s ease both;
+}
+@keyframes scrim-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.toolbar__drawer-toggle {
+  margin-right: 4px;
+}
+
+/* ============================================================================
+   FLAGSHIP VIBE — studio chrome tweaks.
+   When the locomotive-editorial vibe is active we hide the native cursor only
+   inside the preview pane (so the custom cursor dot + ring don't double up),
+   and promote the preview to full-bleed background using the flagship ivory.
+   ========================================================================= */
+body[data-vibe="locomotive-editorial"] .panel--preview { cursor: none; }
+body[data-vibe="locomotive-editorial"] .panel--preview * { cursor: inherit; }
+/* …but keep interactive inputs clickable inside the preview editor hooks. */
+body[data-vibe="locomotive-editorial"] .panel--preview a,
+body[data-vibe="locomotive-editorial"] .panel--preview button,
+body[data-vibe="locomotive-editorial"] .panel--preview input,
+body[data-vibe="locomotive-editorial"] .panel--preview textarea,
+body[data-vibe="locomotive-editorial"] .panel--preview select { cursor: none; }
+/* Touch / reduced-motion: restore native cursor. */
+@media (hover: none) {
+  body[data-vibe="locomotive-editorial"] .panel--preview,
+  body[data-vibe="locomotive-editorial"] .panel--preview * { cursor: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-vibe="locomotive-editorial"] .panel--preview,
+  body[data-vibe="locomotive-editorial"] .panel--preview * { cursor: auto; }
+}
+
+/* Narrow screen fallback — hide the toolbar title subtitle on very small
+   viewports so the drawer-toggle + brand + lang seg all fit. */
+@media (max-width: 520px) {
+  .toolbar__title small { display: none; }
+}

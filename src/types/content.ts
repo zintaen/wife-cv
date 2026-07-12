@@ -28,17 +28,17 @@ export interface Meta {
 export type Orientation = 'landscape' | 'portrait';
 
 // ---------------------------------------------------------------- vibes
+// Active aesthetic presets. Five other vibes (locomotive-editorial,
+// editorial, vogue-editorial, hanok-prestige, nouvelle-vague) were retired
+// from the studio — their folders may still exist on disk but they're no
+// longer registered, importable, or selectable.
 export const VIBE_KEYS = [
-  'editorial',         // placeholder; remapped to vogue in v2
-  'cinema-noir',
+  'cinema-noir',          // default — moody noir
   'hong-kong-neon',
   'shanghai-deco',
   'bollywood-maximal',
-  'hanok-prestige',
   'japanese-photobook',
-  'nouvelle-vague',
   'wes-anderson',
-  'vogue-editorial',
   'commercial-fresh',
 ] as const;
 export type VibeKey = (typeof VIBE_KEYS)[number];

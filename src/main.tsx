@@ -4,6 +4,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from '@/App';
 import '@/styles/base.css';
+import '@/styles/studio.css';
+import '@/lib/motion/motion.css';
 
 // Tag the body synchronously in prod so the CSS grid collapses before React's
 // first paint. Otherwise there's a one-frame flash where the sidebar columns

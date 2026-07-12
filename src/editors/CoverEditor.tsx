@@ -1,5 +1,5 @@
 import css from './forms.module.css';
-import { MLInput, TextInput, ListItem, AddButton, moveItem } from './primitives';
+import { MLInput, ImageInput, ListItem, AddButton, moveItem } from './primitives';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import type { Category, MLStr } from '@/types/content';
@@ -24,9 +24,9 @@ export function CoverEditor({ cat }: { cat: Category<'cover'> }) {
                  onChange={v => patch(cat.id, { portfolio_label: v })} />
       <MLInput   label={ui(lang, 'field.name')} value={d.name}
                  onChange={v => patch(cat.id, { name: v })} />
-      <TextInput label={ui(lang, 'field.image')} value={d.image ?? ''}
-                 onChange={v => patch(cat.id, { image: v })}
-                 placeholder="images/cover-01.jpeg" />
+      <ImageInput label={ui(lang, 'field.image')} value={d.image ?? ''}
+                  onChange={v => patch(cat.id, { image: v })}
+                  placeholder="images/cover-01.jpeg" />
 
       <div className={css.label}>Roles</div>
       {roles.map((r, i) => (

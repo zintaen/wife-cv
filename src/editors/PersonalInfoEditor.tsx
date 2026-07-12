@@ -1,5 +1,5 @@
 import css from './forms.module.css';
-import { MLInput, TextInput, ListItem, AddButton, moveItem } from './primitives';
+import { MLInput, ImageInput, ListItem, AddButton, moveItem } from './primitives';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import type { Category, InfoField } from '@/types/content';
@@ -22,7 +22,7 @@ export function PersonalInfoEditor({ cat }: { cat: Category<'personal-info'> }) 
     <div className={css.group}>
       <MLInput   label={ui(lang, 'field.heading')}    value={d.heading}    onChange={v => patch(cat.id, { heading: v })} />
       <MLInput   label={ui(lang, 'field.subheading')} value={d.subheading} onChange={v => patch(cat.id, { subheading: v })} />
-      <TextInput label={ui(lang, 'field.image')}      value={d.image ?? ''} onChange={v => patch(cat.id, { image: v })} />
+      <ImageInput label={ui(lang, 'field.image')}     value={d.image ?? ''} onChange={v => patch(cat.id, { image: v })} />
 
       <div className={css.label}>{ui(lang, 'card.fields')}</div>
       {fields.map((f, i) => (

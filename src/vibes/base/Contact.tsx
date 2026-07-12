@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { Page, SectionHead } from './Page';
 import css from './Contact.module.css';
 import { t } from '@/lib/translate';

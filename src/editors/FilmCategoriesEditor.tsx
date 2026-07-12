@@ -1,5 +1,5 @@
 import css from './forms.module.css';
-import { MLInput, TextInput, ListItem, AddButton, moveItem } from './primitives';
+import { MLInput, TextInput, ImageInput, ListItem, AddButton, moveItem } from './primitives';
 import { useStore } from '@/store/useStore';
 import { ui } from '@/i18n/strings';
 import type { Category, FilmCategory, MLStr } from '@/types/content';
@@ -93,11 +93,11 @@ export function FilmCategoriesEditor({ cat }: { cat: Category<'film-categories'>
           onDown={() => moveImg(i, +1)}
           onRemove={() => rmImg(i)}
         >
-          <TextInput label={ui(lang, 'field.image')} value={src}
-                     onChange={v => {
-                       const arr = [...imgs]; arr[i] = v;
-                       patch(cat.id, { images: arr });
-                     }} />
+          <ImageInput label={ui(lang, 'field.image')} value={src}
+                      onChange={v => {
+                        const arr = [...imgs]; arr[i] = v;
+                        patch(cat.id, { images: arr });
+                      }} />
         </ListItem>
       ))}
       <AddButton onClick={() => patch(cat.id, { images: [...imgs, ''] })} />

@@ -34,6 +34,7 @@ interface StoreState {
   addCategory:    (type: CategoryType) => void;
   deleteCategory: (id: string) => void;
   reorderCategory: (fromId: string, toId: string) => void;
+  setCategoryOrder: (ids: string[]) => void;
 
   setVibeOverride: (vibe: VibeKey, varName: string, value: string) => void;
   clearVibeOverride: (vibe: VibeKey, varName: string) => void;
@@ -57,7 +58,7 @@ export const useStore = create<StoreState>((set, get) => ({
   // flash in for one frame before `load()` resolves and flips the flag.
   isStatic: import.meta.env.PROD,
   lang: 'vi',
-  vibe: 'editorial',
+  vibe: 'cinema-noir',
   orientation: 'landscape',
   selectedId: null,
   vibeOverrides: {},
@@ -71,7 +72,7 @@ export const useStore = create<StoreState>((set, get) => ({
       const meta = doc.meta ?? {} as ContentDoc['meta'];
       const vibe = (VIBE_KEYS as readonly string[]).includes(meta.default_theme as string)
         ? (meta.default_theme as VibeKey)
-        : 'editorial';
+        : 'cinema-noir';
       set({
         content: doc,
         originalSig: sig(doc),
@@ -159,6 +160,34 @@ export const useStore = create<StoreState>((set, get) => ({
     const [moved] = arr.splice(i, 1);
     arr.splice(j, 0, moved);
     set({ content: { ...doc, categories: arr } });
+  },
+
+  // Full-list reorder — receives an id sequence (the new order) and
+  // reshapes content.categories to match. Used by framer-motion's
+  // Reorder.Group where the drag gesture produces a complete new order
+  // rather than a from/to pair. Unknown ids are ignored; missing ids
+  // are appended at the end so nothing is ever dropped.
+  setCategoryOrder(ids) {
+    const doc = get().content; if (!doc) return;
+    const byId = new Map(doc.categories.map(c => [c.id, c] as const));
+    const next: Category[] = [];
+    for (const id of ids) {
+      const cat = byId.get(id);
+      if (cat) { next.push(cat); byId.delete(id); }
+    }
+    // Append any categories that weren't mentioned, preserving their
+    // original order.
+    for (const cat of doc.categories) {
+      if (byId.has(cat.id)) next.push(cat);
+    }
+    // No-op if the order didn't actually change (reference equality
+    // on each index).
+    let same = next.length === doc.categories.length;
+    for (let k = 0; same && k < next.length; k++) {
+      if (next[k] !== doc.categories[k]) same = false;
+    }
+    if (same) return;
+    set({ content: { ...doc, categories: next } });
   },
 
   setVibeOverride(vibe, varName, value) {

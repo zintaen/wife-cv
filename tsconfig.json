@@ -19,7 +19,15 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts"],
+  "exclude": [
+    "src/vibes/locomotive-editorial",
+    "src/vibes/editorial",
+    "src/vibes/vogue-editorial",
+    "src/vibes/hanok-prestige",
+    "src/vibes/nouvelle-vague"
+  ]
 }

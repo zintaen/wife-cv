@@ -80,3 +80,24 @@
   border-color: #c0392b;
   color: #e74c3c;
 }
+
+/* ImageInput: text box + pick/clear buttons + tiny thumbnail preview.
+   The thumbnail pulls from the same relative path that Portfolio renders,
+   so it mirrors what will appear on the page. */
+.imageRow { display: flex; gap: 8px; align-items: center; }
+.imageRow .input { flex: 1 1 auto; min-width: 0; }
+.imageThumb {
+  flex: 0 0 auto;
+  width: 36px; height: 36px;
+  object-fit: cover;
+  border: 1px solid var(--chrome-rule);
+  background: var(--chrome-hover);
+}
+.imageThumbPlaceholder {
+  flex: 0 0 auto;
+  width: 36px; height: 36px;
+  border: 1px dashed var(--chrome-rule);
+  background: var(--chrome-hover);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--chrome-muted); font-size: 14px;
+}
