@@ -8,87 +8,14 @@
 <link rel="stylesheet" href="assets/status.css">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
-<body data-template-id="status-hub@2">
-<a class="skip" href="#lens">Skip to content</a>
+<body data-template-id="status-hub@3" data-theme="paper">
+<a class="skip" href="#pulse">Skip to content</a>
+<p class="sr-only">VERSION <span class="code">unversioned</span> · built from <span class="code">fp-eaff32dbaa18</span> · 0 tasks · 1 releases</p>
 
-<header class="hd">
-  <div class="wrap hd-in">
-    <div class="hd-id">
-      <span class="hd-mark" aria-hidden="true">W</span>
-      <div>
-        <h1>wife-cv status</h1>
-        <p class="hd-sub">Where wife-cv is and what is coming — generated from task frontmatter, CHANGELOG and VERSION</p>
-      </div>
-    </div>
-    <div class="hd-side">
-      <p class="hd-meta">VERSION <span class="code">unversioned</span> · built from <span class="code">1feae317464f</span> · 0 tasks · 1 releases</p>
-      <button id="theme" class="btn ghost" type="button" title="Toggle light / dark" aria-label="Toggle light / dark">◐</button>
-    </div>
-  </div>
-</header>
-
-<main class="wrap">
-  <section class="deck" aria-label="Project pulse">
-<div class="panel">
-  <h2>Overall progress · 0 tasks · 0 modules</h2>
-  <div class="kpis">
-    <button class="kpi" type="button" data-bucket="done" title="Filter to done"><b>0</b><span><i class="dot seg-done"></i>done</span></button>
-    <button class="kpi" type="button" data-bucket="active" title="Filter to in flight"><b>0</b><span><i class="dot seg-active"></i>in flight</span></button>
-    <button class="kpi" type="button" data-bucket="todo" title="Filter to draft"><b>0</b><span><i class="dot seg-todo"></i>draft</span></button>
-    <button class="kpi" type="button" data-bucket="hold" title="Filter to on hold"><b>0</b><span><i class="dot seg-hold"></i>on hold</span></button>
-    <div class="kpi"><b>—</b><span>open effort (h)</span></div>
-  </div>
-  <div class="bar-seg">
-    <i class="seg-done" style="width:0.0%" title="done 0"></i>
-    <i class="seg-active" style="width:0.0%" title="in flight 0"></i>
-    <i class="seg-hold" style="width:0.0%" title="on hold 0"></i>
-  </div>
-  <div class="legend">
-    <span><i class="dot seg-done"></i> done / closed (0.0%)</span>
-    <span><i class="dot seg-active"></i> in flight — ready_to_implement → testing</span>
-    <span><i class="dot seg-todo"></i> draft</span>
-    <span><i class="dot seg-hold"></i> on hold</span>
-    <span class="muted">click a number to filter · click any task to open it</span>
-  </div>
-</div>
-<div class="panel">
-  <h2>Releases · 1 · latest v0.1.0</h2>
-  <div class="spark"><a href="#timeline" title="v0.1.0 · 2026-07-12 — 0 tasks"><b>0</b><i style="height:4px"></i><span>0.1.0</span></a></div>
-  <p class="relnote">tasks bound to each release — cited in the entry, or matched by <code>shipped:</code> date.</p>
-</div></section>
-
-  
-
-  <nav class="bar" id="bar" aria-label="Search, filters and views">
-    <div class="bar-top">
-      <label class="srch">
-        <span class="ic" aria-hidden="true">⌕</span>
-        <input id="q" type="search" placeholder="Search 0 tasks — id, title, module, owner, phase…" autocomplete="off" spellcheck="false">
-      </label>
-      <div class="lenses" role="tablist" aria-label="View">
-        <button class="ln" role="tab" type="button" data-lens="board" aria-selected="true">▦ Board</button>
-        <button class="ln" role="tab" type="button" data-lens="table" aria-selected="false">☰ Table</button>
-        <button class="ln" role="tab" type="button" data-lens="timeline" aria-selected="false">◷ Releases</button>
-      </div>
-    </div>
-    <div class="bar-bot">
-      <label class="facet">module<select id="f-m"><option value="">all</option></select></label>
-  <label class="facet">status<select id="f-s"><option value="">all</option></select></label>
-  <label class="facet">priority<select id="f-p"><option value="">all</option></select></label>
-  <label class="facet">class<select id="f-c"><option value="">all</option></select></label>
-  <label class="facet">phase<select id="f-ph"><option value="">all</option></select></label>
-  <label class="facet">group by<select id="f-g"><option value="m">module</option><option value="ph">phase</option><option value="s">status</option><option value="p">priority</option><option value="c">class</option><option value="o">owner</option></select></label>
-      <button id="clear" class="btn ghost sm" type="button">Clear</button>
-      <output id="count" class="cnt" for="q"></output>
-    </div>
-    <div class="chipbar" id="active-filters" hidden></div>
-  </nav>
-
-  <div id="lens" class="lens" role="region" aria-live="polite" aria-label="Tasks"></div>
-
+<div id="app">
   <noscript>
-    <div class="nojs">
-<p class="relnote">JavaScript is off, so the lenses, filters and the task drawer are unavailable.
+    <div class="nojs wrap">
+<p class="relnote">JavaScript is off, so the interactive canvas and the task drawer are unavailable.
 Everything below is the same corpus, rendered statically.</p>
 <div class="tbl-wrap"><table><thead><tr>
 <th>id</th><th>title</th><th>module</th><th>class</th><th>priority</th><th>phase</th><th>status</th>
@@ -98,18 +25,21 @@ Everything below is the same corpus, rendered statically.</p>
 <h3 class="groupq">Releases</h3>
 <article class="rel"><span class="tick">✓</span><div>
   <div class="rel-h"><b>v0.1.0</b><span class="muted">2026-07-12</span></div>
-  
+
   <div class="rel-sec"><h4>Notes</h4><ul><li>CyberOS initialised: task workflow vendored to .cyberos/, backlog at docs/tasks/BACKLOG.md, status page at .cyberos/status.html.</li></ul></div>
 </div></article></div>
   </noscript>
+</div>
 
-  <footer class="ft">wife-cv — generated at unversioned (1feae317464f). Markdown is the record of truth; this page only renders it.</footer>
-</main>
+<aside class="ops-reports" aria-label="Operator reports">
+<section class="now" id="stuck-wip">
+  <h2>Stuck WIP (G13)</h2>
+  <p class="muted">As-of date unavailable (no CYBEROS_NOW / CYBEROS_HUB_ASOF and no dated CHANGELOG entry for VERSION unversioned) — age classification skipped. Detector stays report-only.</p>
+</section></aside>
 
-<div id="scrim" class="scrim" hidden></div>
-<aside id="drawer" class="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="dw-title"></aside>
+<footer class="gen-foot wrap">wife-cv — generated at unversioned (fp-eaff32dbaa18). Markdown is the record of truth; this page only renders it. · <a href="status-legacy.html">Legacy status page</a></footer>
 
-<script type="application/json" id="cs-data">{"project":"wife-cv","version":"unversioned","commit":"1feae317464f","statuses":["draft","ready_to_implement","implementing","ready_to_review","reviewing","ready_to_test","testing","done","on_hold","closed"],"specDir":"data/task","frBase":"../tasks/","tasks":[],"releases":[{"v":"0.1.0","vl":"v0.1.0","d":"2026-07-12","intro":[],"sec":[{"h":"Notes","items":["CyberOS initialised: task workflow vendored to .cyberos/, backlog at docs/tasks/BACKLOG.md, status page at .cyberos/status.html."]}],"cited":[],"dated":[]}],"bound":[]}</script>
+<script type="application/json" id="sv3-data">{"project":"wife-cv","version":"unversioned","feed":1,"snapshot":"2026-07-16","head":"f9ed64f","coverageAsOf":"f9ed64f","branch":"main","repoUrl":"https://github.com/zintaen/wife-cv","tags":[],"statuses":["draft","ready_to_implement","implementing","ready_to_review","reviewing","ready_to_test","testing","done","on_hold","closed","cannot_reproduce","duplicate"],"specBase":"../tasks/","rule":"Every change introduced by a commit must be linked to one or more tasks and reflected on the Status page and in the Release Notes. No exceptions.","enforcement":"Advisory today (commit-msg hook + CI range check). Ledger at docs/tasks/_state/commit-links.yaml for retroactive fixes.","tasks":[],"modules":[],"medges":[],"phases":[],"releases":[{"v":"0.1.0","d":"2026-07-12","notes":{"features":[],"fixes":[],"improvements":[{"x":"CyberOS initialised: task workflow vendored to .cyberos/, backlog at docs/tasks/BACKLOG.md, status page at .cyberos/status.html.","ids":[]}]},"cov":{"commits":[],"linked":0,"exempt":0,"unlinked":0}}],"unreleased":{"notes":{"features":[],"fixes":[],"improvements":[]},"cov":{"commits":[{"h":"f9ed64f","d":"2026-07-16","s":"chore(ci): pin Node 24.18.0; upgrade Actions to Node-24 majors","ids":[],"k":"unlinked"},{"h":"580987d","d":"2026-07-16","s":"chore: require Node.js >=24; remove dangling agent skill links","ids":[],"k":"unlinked"},{"h":"6adffda","d":"2026-07-16","s":"chore(cyberos): retire the FR vocabulary; adopt CyberOS 1.0.0 (rules_sha d9dbcc8a)","ids":[],"k":"unlinked"},{"h":"1feae31","d":"2026-07-13","s":"chore(cyberos): adopt CyberOS 1.0.0 - status-hub@2 status page","ids":[],"k":"unlinked"},{"h":"35c5cb5","d":"2026-07-13","s":"chore: adopt CyberOS 1.0 protocol - folder-per-FR layout, docs/status page, managed gitignore, status auto-sync","ids":[],"k":"unlinked"},{"h":"5acf6a0","d":"2026-07-10","s":"cyberos: adopt unified feature-requests structure (init v0.1.0)","ids":[],"k":"unlinked"},{"h":"9dbec87","d":"2026-04-21","s":"Revamp shell into a draggable split with collapsible halves","ids":[],"k":"unlinked"},{"h":"489758b","d":"2026-04-21","s":"Keep the left sidebar in static mode as a section navigator","ids":[],"k":"unlinked"},{"h":"5d9f1c8","d":"2026-04-21","s":"Force revalidation on the HTML shell","ids":[],"k":"unlinked"},{"h":"5346ec9","d":"2026-04-21","s":"Start prod builds in static mode to avoid sidebar flash on load","ids":[],"k":"unlinked"},{"h":"7a627fa","d":"2026-04-20","s":"Skip /api/* probes in prod builds so static hosts don't 404","ids":[],"k":"unlinked"},{"h":"92d799e","d":"2026-04-20","s":"Prep for Vercel","ids":[],"k":"unlinked"},{"h":"fa3c32d","d":"2026-04-20","s":"fix(shell): port legacy studio layout to React for pixel-parity","ids":[],"k":"unlinked"},{"h":"39a279d","d":"2026-04-20","s":"Migrate portfolio studio from vanilla JS to Vite + React + TypeScript","ids":[],"k":"unlinked"},{"h":"2210838","d":"2026-04-20","s":"fix: UI","ids":[],"k":"unlinked"},{"h":"a46488a","d":"2026-04-19","s":"Initial commit: wife actress portfolio site","ids":[],"k":"unlinked"}],"linked":0,"exempt":0,"unlinked":16}},"burnup":[],"fp":"fp-8e1ead296b5d","commit":"fp-eaff32dbaa18","specDir":"data/task","frBase":"../tasks/","draft_staleness":{"total":0,"by_reason":[]},"stuck_wip":{"asof":null,"threshold_days":30,"stale":[],"unparseable":[],"asof_missing":true}}</script>
 <script defer src="assets/status.js"></script>
 </body>
 </html>
